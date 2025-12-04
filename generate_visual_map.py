@@ -34,7 +34,7 @@ def parse_srt(file_path):
     return " ".join(formatted_transcript)
 
 # --- 2. THE "WISDOM TOPOLOGY" PROMPT ---
-def generate_reasoning_map(full_transcript_text):
+def generate_visual_map(full_transcript_text):
     # We use gemini-2.5-pro as it is the available high-reasoning model for this environment
     model = genai.GenerativeModel('gemini-2.5-pro')
 
@@ -203,13 +203,13 @@ if __name__ == "__main__":
     
     if transcript_text:
         print("Analyzing transcript and mapping logic...")
-        mermaid_def = generate_reasoning_map(transcript_text)
+        mermaid_def = generate_visual_map(transcript_text)
 
         if mermaid_def:
             print("Generating Interactive UI...")
             full_html = create_interactive_html(mermaid_def)
             
-            with open('reasoning_map.html', 'w', encoding='utf-8') as f:
+            with open('visual_map.html', 'w', encoding='utf-8') as f:
                 f.write(full_html)
             
             # ALSO update index.html for the integrated view
@@ -217,26 +217,26 @@ if __name__ == "__main__":
                 with open('index.html', 'r') as f:
                     index_html = f.read()
                 
-                # Look for the reasoning source block
-                # We will use a specific ID for this: id="reasoning-map-source"
+                # Look for the mermaid source block - now using the standard ID
                 safe_mermaid = html.escape(mermaid_def)
                 
                 # Regex to replace content if it exists
-                pattern = re.compile(r'(<pre id="reasoning-map-source" class="mermaid-source-block">)(.*?)(</pre>)', re.DOTALL)
+                # We will target 'mermaid-source' which we will set in index.html
+                pattern = re.compile(r'(<pre id="mermaid-source"[^>]*>)(.*?)(</pre>)', re.DOTALL)
                 
                 if pattern.search(index_html):
                     new_index_html = pattern.sub(r'\1\n' + safe_mermaid + r'\n\3', index_html)
                     with open('index.html', 'w') as f:
                         f.write(new_index_html)
-                    print("Updated index.html with new Reasoning Map.")
+                    print("Updated index.html with new Visual Map.")
                 else:
-                    # Fallback for other possible IDs or manual insertion if needed
-                    print("Warning: Could not find <pre id='reasoning-map-source'> in index.html.")
+                    # Fallback check for other IDs just in case
+                    print("Warning: Could not find <pre id='mermaid-source'> in index.html.")
 
             except Exception as e:
                 print(f"Could not update index.html: {e}")
                 
-            print("Success! Open 'reasoning_map.html' for standalone view or 'index.html' for dashboard.")
+            print("Success! Open 'visual_map.html' for standalone view or 'index.html' for dashboard.")
         else:
             print("Failed to generate Mermaid definition.")
     else:

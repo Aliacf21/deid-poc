@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clinical Reasoning Map</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script type="module">
+        import mermaid from '[https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs](https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs)';
+        mermaid.initialize({ 
+            startOnLoad: false, 
+            theme: 'base',
+            flowchart: { curve: 'basis' }
+        });
+        window.mermaid = mermaid;
+    </script>
+    <script src="[https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js](https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js)"></script>
+    <style>
+        body { background-color: #f8fafc; height: 100vh; display: flex; flex-direction: column; }
+        header { padding: 1rem; background: #fff; border-bottom: 1px solid #e2e8f0; }
+        #diagram-wrapper { flex-grow: 1; overflow: hidden; position: relative; background: white; }
+        pre.mermaid-source { display: none; }
+        .legend { position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.8rem; pointer-events: none; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 4px; }
+        .color-box { width: 15px; height: 15px; margin-right: 8px; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="text-xl font-bold text-slate-800">Visual Differential Diagnosis</h1>
+        <p class="text-sm text-slate-500">Interactive Map generated from Case Transcript</p>
+    </header>
+    <div id="diagram-wrapper">
+        <pre class="mermaid-source" id="differential-map-source">
+graph TD
+    subgraph Presentation [&quot;Clinical Presentation &amp; History&quot;]
+        P1[&quot;46M with Recurrent Chest Pain, Headache &amp; New Neurologic Deficits&quot;]
+        P2[&quot;History (2 mo ago): Repaired Right Atrial Pseudoaneurysm&quot;]
+        P3[&quot;History: Pericarditis w/ Eosinophilic Effusion&quot;]
+        P4[&quot;Key History: Extensive Travel (SE Asia, Israel) &amp; Animal Exposures&quot;]
+    end
+
+    subgraph Workup [&quot;Diagnostic Pivots (Labs/Imaging)&quot;]
+        W1[&quot;Imaging Reveals Multi-System Disease&quot;]
+        W1_A[&quot;- Multiple Pulmonary Nodules (Halo Sign)&quot;]
+        W1_B[&quot;- Multiple Enhancing Cerebral Lesions&quot;]
+        W1_C[&quot;- Pericardial Masses &amp; Bony Lesions&quot;]
+        W2[&quot;Broad Infectious &amp; Inflammatory Workup&quot;]
+        W3[&quot;BAL, CSF, &amp; Extensive Serologies&quot;]
+        NEG1[&quot;RESULTS: All Infectious Studies Negative&quot;]
+        W4[&quot;PIVOT: Tissue is the Issue&quot;]
+        W5[&quot;IR Biopsy of Pericardial Lymph Node&quot;]
+    end
+
+    subgraph Differential [&quot;The Differential (What they thought it was)&quot;]
+        D_Bact[&quot;Atypical/Indolent Bacteria&quot;]
+        D_Bact_1[&quot;- Nocardia&quot;]
+        D_Bact_2[&quot;- Burkholderia (Melioidosis)&quot;]
+        D_Bact_3[&quot;- Brucella&quot;]
+        D_Bact_4[&quot;- Mycobacteria (TB/NTM)&quot;]
+        D_Bact_5[&quot;- Syphilis&quot;]
+
+        D_Fung[&quot;Disseminated Fungal&quot;]
+        D_Fung_1[&quot;- Histo / Blasto / Coccidio&quot;]
+        D_Fung_2[&quot;- Crypto / Aspergillus&quot;]
+
+        D_Para[&quot;Parasitic&quot;]
+        D_Para_1[&quot;- Toxoplasmosis&quot;]
+        D_Para_2[&quot;- Paragonimiasis&quot;]
+        
+        D_Inflam[&quot;Non-Infectious / Malignancy&quot;]
+        D_Inflam_1[&quot;- IGG4 Disease&quot;]
+        D_Inflam_2[&quot;- Histiocytosis&quot;]
+        D_Inflam_3[&quot;- Primary Malignancy&quot;]
+    end
+
+    subgraph Final [&quot;Final Diagnosis&quot;]
+        F1[&quot;Angiosarcoma&quot;]
+    end
+
+    P1 --&gt; P2 &amp; P3 &amp; P4
+    P2 --&gt; W1
+    W1 --&gt; W1_A &amp; W1_B &amp; W1_C
+    W1 --&gt; W2
+
+    W2 -.-&gt;|Considered| D_Bact
+    D_Bact --&gt; D_Bact_1 &amp; D_Bact_2 &amp; D_Bact_3 &amp; D_Bact_4 &amp; D_Bact_5
+    W2 -.-&gt;|Considered| D_Fung
+    D_Fung --&gt; D_Fung_1 &amp; D_Fung_2
+    W2 -.-&gt;|Considered| D_Para
+    D_Para --&gt; D_Para_1 &amp; D_Para_2
+    W2 -.-&gt;|Considered| D_Inflam
+    D_Inflam --&gt; D_Inflam_1 &amp; D_Inflam_2 &amp; D_Inflam_3
+
+    W2 --&gt; W3
+    W3 --&gt;|All Negative| NEG1
+    NEG1 --&gt; W4
+    W4 --&gt; W5
+    W5 ==&gt;|Confirmed by Pathology| F1
+
+    classDef anchor fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef diff fill:#fff3e0,stroke:#ef6c00,stroke-dasharray: 5 5;
+    classDef negative fill:#ffebee,stroke:#c62828;
+    classDef final fill:#e8f5e9,stroke:#2e7d32,stroke-width:4px,font-weight:bold;
+
+    class P1,P2,P3,P4 anchor;
+    class D_Bact,D_Bact_1,D_Bact_2,D_Bact_3,D_Bact_4,D_Bact_5,D_Fung,D_Fung_1,D_Fung_2,D_Para,D_Para_1,D_Para_2,D_Inflam,D_Inflam_1,D_Inflam_2,D_Inflam_3 diff;
+    class NEG1 negative;
+    class F1 final;
+        </pre>
+        <div id="mermaid-output" style="width: 100%; height: 100%;"></div>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="color-box" style="background:#e3f2fd; border-color:#1565c0;"></div>Clinical Anchor</div>
+            <div class="legend-item"><div class="color-box" style="background:#fff3e0; border-color:#ef6c00; border-style:dashed;"></div>Differential Consideration</div>
+            <div class="legend-item"><div class="color-box" style="background:#ffebee; border-color:#c62828;"></div>Negative/Ruled Out</div>
+            <div class="legend-item"><div class="color-box" style="background:#e8f5e9; border-color:#2e7d32;"></div>Final Diagnosis</div>
+        </div>
+    </div>
+    <script type="module">
+        import mermaid from '[https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs](https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs)';
+        async function render() {
+            const source = document.getElementById('differential-map-source').textContent;
+            try {
+                const { svg } = await mermaid.render('rendered-diff-map', source);
+                document.getElementById('mermaid-output').innerHTML = svg;
+                const svgEl = document.querySelector('#mermaid-output svg');
+                svgEl.setAttribute('width', '100%');
+                svgEl.setAttribute('height', '100%');
+                // Enable Pan/Zoom
+                svgPanZoom(svgEl, { zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true });
+            } catch (error) {
+                console.error("Mermaid Render Error:", error);
+                document.getElementById('mermaid-output').innerHTML = `<div class="p-10 text-red-600">Error rendering chart. The AI may have generated invalid syntax. Check console.</div>`;
+            }
+        }
+        render();
+    </script>
+</body>
+</html>

@@ -206,7 +206,8 @@
             height: 100%;
         }
         
-        #mermaid-source {
+        /* Hidden source blocks */
+        .mermaid-source-block {
             display: none;
         }
 
@@ -359,49 +360,53 @@
             
             <!-- MAP TAB -->
             <div id="map" class="tab-content">
-                <pre id="mermaid-source">
+                <!-- Source for Visual Map -->
+                <pre id="mermaid-source" class="mermaid-source-block">
 graph TD
-    classDef phase1 fill:#e3f2fd,stroke:#333,stroke-width:2px,color:#0d47a1;
-    classDef phase2 fill:#fff3e0,stroke:#333,stroke-width:2px,color:#e65100;
-    classDef phase3 fill:#e8f5e9,stroke:#333,stroke-width:2px,color:#1b5e20;
+    classDef Phase1 fill:#e0f7fa,stroke:#00796b,stroke-width:2px;
+    classDef Phase2 fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef Phase3 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
 
     subgraph Phase_1 [The Clinical Puzzle]
-        A("<b>Patient Profile</b><br>46M with history of repaired<br>right atrial pseudoaneurysm")
-        B("<b>Initial Presentation (2mo prior)</b><br>Pericarditis & pericardial effusion<br>with eosinophils")
-        C("<b>Current Presentation</b><br>Recurrent chest pain, headache,<br>neurologic deficits (gait, speech)")
-        D("<b>Key Imaging Findings</b><br>New multi-organ lesions:<br>- Lungs (nodules with halo sign)<br>- Brain (enhancing lesions)<br>- Bone & Pericardium (masses)")
+        Patient(&quot;46M with Hx of&lt;br&gt;Atrial Pseudoaneurysm Repair&quot;)
+        Presentation(&quot;New Onset:&lt;br&gt;Chest Pain, Headache,&lt;br&gt;Word-Finding Difficulty&quot;)
+        Imaging(&quot;Multi-System Lesions:&lt;br&gt;Lungs (Halo Sign), Brain,&lt;br&gt;Pericardium, Bone&quot;)
+        Lab(&quot;Key Lab Finding:&lt;br&gt;Peripheral Eosinophilia&quot;)
+        Dilemma(&quot;The Dilemma:&lt;br&gt;Widespread disease in a&lt;br&gt;previously healthy world traveler&quot;)
     end
 
     subgraph Phase_2 [The Differential Debate]
-        E("<b>Central Dilemma</b><br>Infection vs. Malignancy?")
-        F1("<b>Hypothesis 1: Infection</b><br><i>Extensive travel history</i>")
-        F2("<u>Infectious Categories Considered</u><br>- Atypical Bacterial (Nocardia, Melioidosis)<br>- Mycobacterial (TB/NTM)<br>- Fungal (Endemic Mycoses)<br>- Parasitic (Paragonimiasis)")
-        G1("<b>Hypothesis 2: Malignancy / Inflammatory</b><br><i>Rapidly progressive, multi-system disease</i>")
-        G2("<u>Non-Infectious Categories Considered</u><br>- Lymphoma<br>- Sarcoma<br>- Histiocytosis<br>- IgG4-related disease")
-        H("<b>Diagnostic Pivot: 'Tissue is the Issue'</b><br>Extensive infectious workup is negative<br>(cultures, serologies, CSF, NGS)")
-        I("<b>Action: Biopsy Performed</b><br>IR-guided biopsy of a<br>pericardial lymph node")
+        CentralQuestion(&quot;Central Question:&lt;br&gt;Infection vs. Malignancy?&quot;)
+        InfectiousDDx(&quot;Hypothesis: Atypical Infection&lt;br&gt;• Mycobacterial (TB/NTM)&lt;br&gt;• Endemic Fungi&lt;br&gt;• Nocardia / Melioidosis&lt;br&gt;• Brucellosis&quot;)
+        MalignancyDDx(&quot;Hypothesis: Malignancy / Inflammatory&lt;br&gt;• Lymphoma&lt;br&gt;• Sarcoma&lt;br&gt;• Histiocytosis&quot;)
+        Workup(&quot;Extensive Infectious Workup:&lt;br&gt;BAL, CSF, Blood Cultures,&lt;br&gt;Serologies --&gt; All Negative&quot;)
+        TurningPoint(&quot;The Turning Point:&lt;br&gt;Biopsy of Pericardial Lymph Node&quot;)
     end
 
-    subgraph Phase_3 [Resolution & Wisdom]
-        J("<b>Final Diagnosis</b><br>Metastatic Cardiac Angiosarcoma")
-        K("<b>Primary Teaching Point</b><br>Angiosarcoma is a great 'mimic'<br>of infection, presenting as pericarditis,<br>pseudoaneurysm, and cellulitis.")
-        L("<b>Clinical Pearl</b><br>When faced with a complex case,<br>consider both infections that mimic<br>malignancy AND malignancies<br>that mimic infection.")
+    subgraph Phase_3 [Resolution &amp; Wisdom]
+        Diagnosis(&quot;Final Diagnosis:&lt;br&gt;Cardiac Angiosarcoma&quot;)
+        TeachingPoint1(&quot;Primary Teaching Point:&lt;br&gt;Angiosarcoma is a great mimicker&lt;br&gt;of infectious pericarditis &amp; sepsis&quot;)
+        TeachingPoint2(&quot;Clinical Pearl:&lt;br&gt;Always consider malignancy when&lt;br&gt;an &#x27;infection&#x27; fails to respond&lt;br&gt;or has atypical features&quot;)
     end
 
-    A --> B --> C --> D;
-    D --> E;
-    E --> F1;
-    E --> G1;
-    F1 --> F2;
-    G1 --> G2;
-    F2 & G2 --> H;
-    H --> I;
-    I --> J;
-    J --> K --> L;
+    %% Flow
+    Patient --&gt; Presentation --&gt; Imaging &amp; Lab
+    Imaging --&gt; Dilemma
+    Lab --&gt; Dilemma
+    Dilemma --&gt; CentralQuestion
+    CentralQuestion --&gt; InfectiousDDx
+    CentralQuestion --&gt; MalignancyDDx
+    InfectiousDDx --&gt; Workup
+    MalignancyDDx --&gt; Workup
+    Workup --&gt; TurningPoint
+    TurningPoint --&gt; Diagnosis
+    Diagnosis --&gt; TeachingPoint1
+    TeachingPoint1 --&gt; TeachingPoint2
 
-    class A,B,C,D phase1;
-    class E,F1,F2,G1,G2,H,I phase2;
-    class J,K,L phase3;
+    %% Styling
+    class Patient,Presentation,Imaging,Lab,Dilemma Phase1;
+    class CentralQuestion,InfectiousDDx,MalignancyDDx,Workup,TurningPoint Phase2;
+    class Diagnosis,TeachingPoint1,TeachingPoint2 Phase3;
 </pre>
                 
                 <div id="mermaid-wrapper">
@@ -467,7 +472,14 @@ graph TD
         let panZoomInstance = null;
 
         async function initMermaid() {
+            // If already initialized, do nothing
             if (mermaidInitialized) return;
+            
+            const sourceElement = document.getElementById('mermaid-source');
+            if (!sourceElement) return;
+            const source = sourceElement.textContent;
+            
+            const container = document.getElementById('mermaid-container');
             
             mermaid.initialize({ 
                 startOnLoad: false, 
@@ -475,9 +487,6 @@ graph TD
                 theme: 'default'
             });
 
-            const source = document.getElementById('mermaid-source').innerText;
-            const container = document.getElementById('mermaid-container');
-            
             try {
                 // Render graph
                 const { svg } = await mermaid.render('graphDiv', source);
@@ -491,6 +500,11 @@ graph TD
                     svgElement.setAttribute('width', '100%');
                     svgElement.setAttribute('height', '100%');
                     
+                    // Destroy previous instance if exists
+                    if (panZoomInstance) {
+                        panZoomInstance.destroy();
+                    }
+
                     panZoomInstance = svgPanZoom(svgElement, {
                         zoomEnabled: true,
                         controlIconsEnabled: false, // We built custom ones
@@ -524,24 +538,23 @@ graph TD
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
                 const btnText = btn.innerText.toLowerCase();
-                if (
-                    (tabName === 'map' && btnText.includes('visual')) ||
-                    (tabName === 'quiz' && btnText.includes('quiz')) ||
-                    (tabName === 'chat' && btnText.includes('ask'))
-                ) {
-                    btn.classList.add('active');
-                }
+                
+                // Mapping tabs to buttons
+                if (tabName === 'map' && btnText.includes('visual')) btn.classList.add('active');
+                else if (tabName === 'quiz' && btnText.includes('quiz')) btn.classList.add('active');
+                else if (tabName === 'chat' && btnText.includes('ask')) btn.classList.add('active');
             });
 
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
             
-            document.getElementById(tabName).classList.add('active');
-
+            // Map tab logic
             if (tabName === 'map') {
-                // Small timeout to ensure container is sized before rendering
+                document.getElementById('map').classList.add('active');
                 setTimeout(initMermaid, 50);
+            } else {
+                document.getElementById(tabName).classList.add('active');
             }
         }
 
