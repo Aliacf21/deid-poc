@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Rounds Board Review Quiz</title>
+    <title>Grand Rounds Board Review</title>
+    <!-- Mermaid for rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Markdown for chat -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Pan/Zoom for Map -->
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,6 +28,7 @@
             padding: 1rem;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10;
         }
 
         .container {
@@ -38,14 +46,62 @@
             justify-content: center;
         }
 
-        .quiz-container {
+        .content-container {
             flex: 1;
-            padding: 2rem;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
             background-color: white;
             border-left: 1px solid #ddd;
+            overflow: hidden;
+            position: relative;
         }
 
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-button.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background-color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Quiz Styles */
         .question-card {
             background-color: #fff;
             border: 1px solid #e0e0e0;
@@ -127,53 +183,271 @@
             text-decoration: underline;
         }
 
-        /* Responsive adjustments */
+        /* Map Styles - Canvas Look */
+        #map {
+            padding: 0; /* Full width/height for canvas */
+            background-color: #f8f9fa;
+            background-image: radial-gradient(#cfcfcf 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: hidden; /* Pan/Zoom library handles scroll */
+        }
+
+        #mermaid-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mermaid-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #mermaid-source {
+            display: none;
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            transition: background 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Chat Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-height: 100%;
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            max-width: 85%;
+        }
+
+        .chat-message.user {
+            margin-left: auto;
+            background-color: #e3f2fd;
+            padding: 0.8rem 1rem;
+            border-radius: 15px 15px 0 15px;
+            color: #0d47a1;
+        }
+
+        .chat-message.bot {
+            margin-right: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 0.8rem 1rem;
+            border-radius: 15px 15px 15px 0;
+            color: #333;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        #send-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #send-btn:hover {
+            background-color: #1a252f;
+        }
+
+        #send-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            font-style: italic;
+            color: #888;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            display: none;
+            margin-bottom: 0.5rem;
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
             }
             .video-container {
                 flex: none;
-                height: 40vh; /* Adjust as needed */
+                height: 40vh; 
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Grand Rounds: Great Mimickers Quiz</h1>
+        <h1>Grand Rounds: Great Mimickers</h1>
     </header>
     <div class="container">
         <div class="video-container">
-            <!-- YouTube IFrame will be replaced here -->
             <div id="player"></div>
         </div>
-        <div class="quiz-container" id="quiz-content">
-            <!-- Questions will be injected here -->
-            <p>Loading quiz data...</p>
+        <div class="content-container">
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('quiz')">Board Review Quiz</button>
+                <button class="tab-button" onclick="switchTab('map')">Visual Differential Map</button>
+                <button class="tab-button" onclick="switchTab('chat')">Ask the Speaker</button>
+            </div>
+            
+            <!-- QUIZ TAB -->
+            <div id="quiz" class="tab-content active">
+                <p>Loading quiz data...</p>
+            </div>
+            
+            <!-- MAP TAB -->
+            <div id="map" class="tab-content">
+                <pre id="mermaid-source">
+graph TD
+    classDef phase1 fill:#e3f2fd,stroke:#333,stroke-width:2px,color:#0d47a1;
+    classDef phase2 fill:#fff3e0,stroke:#333,stroke-width:2px,color:#e65100;
+    classDef phase3 fill:#e8f5e9,stroke:#333,stroke-width:2px,color:#1b5e20;
+
+    subgraph Phase_1 [The Clinical Puzzle]
+        A("<b>Patient Profile</b><br>46M with history of repaired<br>right atrial pseudoaneurysm")
+        B("<b>Initial Presentation (2mo prior)</b><br>Pericarditis & pericardial effusion<br>with eosinophils")
+        C("<b>Current Presentation</b><br>Recurrent chest pain, headache,<br>neurologic deficits (gait, speech)")
+        D("<b>Key Imaging Findings</b><br>New multi-organ lesions:<br>- Lungs (nodules with halo sign)<br>- Brain (enhancing lesions)<br>- Bone & Pericardium (masses)")
+    end
+
+    subgraph Phase_2 [The Differential Debate]
+        E("<b>Central Dilemma</b><br>Infection vs. Malignancy?")
+        F1("<b>Hypothesis 1: Infection</b><br><i>Extensive travel history</i>")
+        F2("<u>Infectious Categories Considered</u><br>- Atypical Bacterial (Nocardia, Melioidosis)<br>- Mycobacterial (TB/NTM)<br>- Fungal (Endemic Mycoses)<br>- Parasitic (Paragonimiasis)")
+        G1("<b>Hypothesis 2: Malignancy / Inflammatory</b><br><i>Rapidly progressive, multi-system disease</i>")
+        G2("<u>Non-Infectious Categories Considered</u><br>- Lymphoma<br>- Sarcoma<br>- Histiocytosis<br>- IgG4-related disease")
+        H("<b>Diagnostic Pivot: 'Tissue is the Issue'</b><br>Extensive infectious workup is negative<br>(cultures, serologies, CSF, NGS)")
+        I("<b>Action: Biopsy Performed</b><br>IR-guided biopsy of a<br>pericardial lymph node")
+    end
+
+    subgraph Phase_3 [Resolution & Wisdom]
+        J("<b>Final Diagnosis</b><br>Metastatic Cardiac Angiosarcoma")
+        K("<b>Primary Teaching Point</b><br>Angiosarcoma is a great 'mimic'<br>of infection, presenting as pericarditis,<br>pseudoaneurysm, and cellulitis.")
+        L("<b>Clinical Pearl</b><br>When faced with a complex case,<br>consider both infections that mimic<br>malignancy AND malignancies<br>that mimic infection.")
+    end
+
+    A --> B --> C --> D;
+    D --> E;
+    E --> F1;
+    E --> G1;
+    F1 --> F2;
+    G1 --> G2;
+    F2 & G2 --> H;
+    H --> I;
+    I --> J;
+    J --> K --> L;
+
+    class A,B,C,D phase1;
+    class E,F1,F2,G1,G2,H,I phase2;
+    class J,K,L phase3;
+</pre>
+                
+                <div id="mermaid-wrapper">
+                    <div id="mermaid-container"></div>
+                </div>
+
+                <!-- Zoom Controls -->
+                <div class="map-controls">
+                    <button class="control-btn" onclick="zoomMap(1.2)" title="Zoom In">+</button>
+                    <button class="control-btn" onclick="zoomMap(0.8)" title="Zoom Out">-</button>
+                    <button class="control-btn" onclick="resetMap()" title="Reset View">↺</button>
+                </div>
+            </div>
+
+            <!-- CHAT TAB -->
+            <div id="chat" class="tab-content">
+                <div class="chat-container">
+                    <div class="chat-history" id="chat-history">
+                        <div class="chat-message bot">
+                            Hello! I am the AI representation of the speaker. Ask me anything about the "Great Mimickers" presentation.
+                        </div>
+                    </div>
+                    <div class="typing-indicator" id="typing-indicator">The speaker is thinking...</div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="e.g., What are the symptoms of Brucellosis?" onkeypress="handleEnter(event)">
+                        <button id="send-btn" onclick="sendMessage()">Ask</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // YouTube Player API
+        // --- YouTube API ---
         var player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: 'mM3mutz432w', // Extracted from URL: https://youtu.be/mM3mutz432w
-                playerVars: {
-                    'playsinline': 1
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
+                videoId: 'mM3mutz432w',
+                playerVars: { 'playsinline': 1 },
+                events: { 'onReady': onPlayerReady }
             });
         }
 
-        function onPlayerReady(event) {
-            // Player is ready
-        }
+        function onPlayerReady(event) { }
 
         function seekToTimestamp(seconds) {
             if (player && player.seekTo) {
@@ -182,24 +456,107 @@
             }
         }
 
-        // Load YouTube Iframe API
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Quiz Logic
-        async function loadQuiz() {
+
+        // --- UI Logic, Mermaid & PanZoom ---
+        let mermaidInitialized = false;
+        let panZoomInstance = null;
+
+        async function initMermaid() {
+            if (mermaidInitialized) return;
+            
+            mermaid.initialize({ 
+                startOnLoad: false, 
+                securityLevel: 'loose',
+                theme: 'default'
+            });
+
+            const source = document.getElementById('mermaid-source').innerText;
+            const container = document.getElementById('mermaid-container');
+            
             try {
-                const response = await fetch('quiz_data.json');
-                const data = await response.json();
-                renderQuiz(data.questions);
-            } catch (error) {
-                console.error('Error loading quiz:', error);
-                document.getElementById('quiz-content').innerHTML = '<p>Error loading quiz data. Please ensure quiz_data.json exists.</p>';
+                // Render graph
+                const { svg } = await mermaid.render('graphDiv', source);
+                container.innerHTML = svg;
+                mermaidInitialized = true;
+
+                // Initialize PanZoom after SVG is in DOM
+                const svgElement = container.querySelector('svg');
+                if (svgElement) {
+                    // Set explicit width/height to 100% for container scaling
+                    svgElement.setAttribute('width', '100%');
+                    svgElement.setAttribute('height', '100%');
+                    
+                    panZoomInstance = svgPanZoom(svgElement, {
+                        zoomEnabled: true,
+                        controlIconsEnabled: false, // We built custom ones
+                        fit: true,
+                        center: true,
+                        minZoom: 0.5,
+                        maxZoom: 10
+                    });
+                }
+            } catch (e) {
+                container.innerHTML = 'Error rendering map: ' + e.message;
+                console.error(e);
             }
         }
 
+        function zoomMap(scale) {
+            if (panZoomInstance) {
+                panZoomInstance.zoomBy(scale);
+            }
+        }
+
+        function resetMap() {
+            if (panZoomInstance) {
+                panZoomInstance.reset();
+                panZoomInstance.fit();
+                panZoomInstance.center();
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                const btnText = btn.innerText.toLowerCase();
+                if (
+                    (tabName === 'map' && btnText.includes('visual')) ||
+                    (tabName === 'quiz' && btnText.includes('quiz')) ||
+                    (tabName === 'chat' && btnText.includes('ask'))
+                ) {
+                    btn.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'map') {
+                // Small timeout to ensure container is sized before rendering
+                setTimeout(initMermaid, 50);
+            }
+        }
+
+        // --- Data Loading ---
+        async function loadData() {
+            try {
+                const qResp = await fetch('quiz_data.json');
+                const qData = await qResp.json();
+                renderQuiz(qData.questions);
+            } catch (e) {
+                document.getElementById('quiz').innerHTML = '<p>Error loading quiz. Make sure server.py is running.</p>';
+            }
+        }
+
+        // --- Quiz Rendering ---
         function formatTime(seconds) {
             const m = Math.floor(seconds / 60);
             const s = Math.floor(seconds % 60);
@@ -207,7 +564,7 @@
         }
 
         function renderQuiz(questions) {
-            const container = document.getElementById('quiz-content');
+            const container = document.getElementById('quiz');
             container.innerHTML = '';
 
             questions.forEach((q, index) => {
@@ -226,7 +583,7 @@
                     const li = document.createElement('li');
                     li.className = 'option';
                     li.textContent = opt;
-                    li.onclick = () => checkAnswer(li, opt, q.correctAnswer, rationaleDiv, q.timestamp);
+                    li.onclick = () => checkAnswer(li, opt, q.correctAnswer, rationaleDiv);
                     optionsList.appendChild(li);
                 });
                 card.appendChild(optionsList);
@@ -234,7 +591,6 @@
                 const rationaleDiv = document.createElement('div');
                 rationaleDiv.className = 'rationale';
                 
-                // Construct rationale content with clickable timestamp
                 let rationaleHTML = `<p><strong>Rationale:</strong> ${q.rationale}</p>`;
                 if (q.timestamp) {
                     rationaleHTML += `<p><a class="timestamp-link" onclick="seekToTimestamp(${q.timestamp})">▶ Jump to explanation at ${formatTime(q.timestamp)}</a></p>`;
@@ -246,34 +602,76 @@
             });
         }
 
-        function checkAnswer(selectedLi, selectedOption, correctAnswer, rationaleDiv, timestamp) {
-            // Prevent re-clicking if already answered (optional, but good UX)
+        function checkAnswer(selectedLi, selectedOption, correctAnswer, rationaleDiv) {
             const parentUl = selectedLi.parentElement;
-            if (parentUl.querySelector('.correct') || parentUl.querySelector('.incorrect')) {
-                return; 
-            }
+            if (parentUl.querySelector('.correct') || parentUl.querySelector('.incorrect')) return; 
 
             if (selectedOption === correctAnswer) {
                 selectedLi.classList.add('correct');
             } else {
                 selectedLi.classList.add('incorrect');
-                // Highlight the correct answer
                 Array.from(parentUl.children).forEach(li => {
-                    if (li.textContent === correctAnswer) {
-                        li.classList.add('correct');
-                    }
+                    if (li.textContent === correctAnswer) li.classList.add('correct');
                 });
             }
-
-            // Show rationale
             rationaleDiv.style.display = 'block';
-            
-            // Optional: Auto-seek to timestamp on answer (uncomment if desired)
-            // if (timestamp) seekToTimestamp(timestamp);
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', loadQuiz);
+        // --- Chat Logic ---
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessageToChat('user', message);
+            input.value = '';
+            document.getElementById('send-btn').disabled = true;
+            document.getElementById('typing-indicator').style.display = 'block';
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                if (data.reply) {
+                    addMessageToChat('bot', data.reply);
+                } else if (data.error) {
+                    addMessageToChat('bot', "Error: " + data.error);
+                }
+            } catch (e) {
+                addMessageToChat('bot', "Connection error. Is server.py running?");
+            } finally {
+                document.getElementById('send-btn').disabled = false;
+                document.getElementById('typing-indicator').style.display = 'none';
+            }
+        }
+
+        function addMessageToChat(role, text) {
+            const history = document.getElementById('chat-history');
+            const div = document.createElement('div');
+            div.className = `chat-message ${role}`;
+            
+            let formattedHtml = marked.parse(text);
+            formattedHtml = formattedHtml.replace(
+                /\[T=(\d+)\]/g, 
+                (match, seconds) => {
+                    return `<a class="timestamp-link" onclick="seekToTimestamp(${seconds})">▶ ${formatTime(seconds)}</a>`;
+                }
+            );
+
+            div.innerHTML = formattedHtml;
+            history.appendChild(div);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>

@@ -1,0 +1,44 @@
+graph TD
+    subgraph Presentation
+        A[46M: Atrial Pseudoaneurysm History] 
+        B[Multi-System: Cardiac, Pulmonary, CNS, Bone]
+        C[Travel: SE Asia, Israel]
+    end
+
+    A --> D{Infection vs. Malignancy}
+    B --> D
+    C --> D
+
+    subgraph Infectious_Differential
+        D --> E(Infectious Etiologies)
+        E --> F[Great Mimickers]
+        F --> TB(Mycobacteria)
+        F --> Fungal(Endemic Fungi)
+        F --> Syphilis
+        F --> Brucellosis
+        F --> Melioidosis
+
+        E --> G[Lesser Known Mimickers]
+        G --> Nocardia
+        G --> Helminth(Paragonimiasis)
+        G --> Bartonella
+    end
+
+    subgraph Non_Infectious
+        D --> H(Malignancy/Inflammatory)
+        H --> IgG4(IgG4-Related Disease)
+        H --> Histo(Histiocytosis)
+        H --> Angio(Angiosarcoma)
+    end
+    
+    C -->|Israel| Brucellosis
+    C -->|SE Asia| Melioidosis
+    C -->|SE Asia| Helminth
+    B -->|Pulmonary + CNS| Nocardia
+
+    subgraph Resolution
+        I[Workup Negative]
+        E --> I
+        I --> J[Biopsy Mass]
+        J --> K((Final Diagnosis: Angiosarcoma))
+    end

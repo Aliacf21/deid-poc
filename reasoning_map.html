@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Wisdom Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: false, theme: 'base' });
+        window.mermaid = mermaid;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    
+    <style>
+        body { background-color: #f8fafc; height: 100vh; overflow: hidden; }
+        #container { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        #diagram-wrapper { flex-grow: 1; border: 1px solid #e2e8f0; background: white; overflow: hidden; position: relative; }
+        #mermaid-output { width: 100%; height: 100%; }
+        /* Ensure hidden pre tag is actually hidden */
+        pre.mermaid-source { display: none; }
+        .controls { position: absolute; bottom: 20px; right: 20px; z-index: 10; display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <header class="bg-white shadow-sm p-4 z-10">
+            <h1 class="text-xl font-bold text-slate-800">Grand Rounds: Clinical Reasoning Map</h1>
+            <p class="text-sm text-slate-500">Visualizing the evolution of medical consensus.</p>
+        </header>
+
+        <div id="diagram-wrapper">
+            <div class="controls">
+                <button onclick="resetZoom()" class="bg-slate-800 text-white px-4 py-2 rounded shadow hover:bg-slate-700 transition">Reset View</button>
+            </div>
+            
+            <!-- Hidden source block -->
+            <pre class="mermaid-source" id="graph-definition">
+graph TD
+    classDef phase1 fill:#e3f2fd,stroke:#333,stroke-width:2px,color:#0d47a1;
+    classDef phase2 fill:#fff3e0,stroke:#333,stroke-width:2px,color:#e65100;
+    classDef phase3 fill:#e8f5e9,stroke:#333,stroke-width:2px,color:#1b5e20;
+
+    subgraph Phase_1 [The Clinical Puzzle]
+        A("<b>Patient Profile</b><br>46M with history of repaired<br>right atrial pseudoaneurysm")
+        B("<b>Initial Presentation (2mo prior)</b><br>Pericarditis & pericardial effusion<br>with eosinophils")
+        C("<b>Current Presentation</b><br>Recurrent chest pain, headache,<br>neurologic deficits (gait, speech)")
+        D("<b>Key Imaging Findings</b><br>New multi-organ lesions:<br>- Lungs (nodules with halo sign)<br>- Brain (enhancing lesions)<br>- Bone & Pericardium (masses)")
+    end
+
+    subgraph Phase_2 [The Differential Debate]
+        E("<b>Central Dilemma</b><br>Infection vs. Malignancy?")
+        F1("<b>Hypothesis 1: Infection</b><br><i>Extensive travel history</i>")
+        F2("<u>Infectious Categories Considered</u><br>- Atypical Bacterial (Nocardia, Melioidosis)<br>- Mycobacterial (TB/NTM)<br>- Fungal (Endemic Mycoses)<br>- Parasitic (Paragonimiasis)")
+        G1("<b>Hypothesis 2: Malignancy / Inflammatory</b><br><i>Rapidly progressive, multi-system disease</i>")
+        G2("<u>Non-Infectious Categories Considered</u><br>- Lymphoma<br>- Sarcoma<br>- Histiocytosis<br>- IgG4-related disease")
+        H("<b>Diagnostic Pivot: 'Tissue is the Issue'</b><br>Extensive infectious workup is negative<br>(cultures, serologies, CSF, NGS)")
+        I("<b>Action: Biopsy Performed</b><br>IR-guided biopsy of a<br>pericardial lymph node")
+    end
+
+    subgraph Phase_3 [Resolution & Wisdom]
+        J("<b>Final Diagnosis</b><br>Metastatic Cardiac Angiosarcoma")
+        K("<b>Primary Teaching Point</b><br>Angiosarcoma is a great 'mimic'<br>of infection, presenting as pericarditis,<br>pseudoaneurysm, and cellulitis.")
+        L("<b>Clinical Pearl</b><br>When faced with a complex case,<br>consider both infections that mimic<br>malignancy AND malignancies<br>that mimic infection.")
+    end
+
+    A --> B --> C --> D;
+    D --> E;
+    E --> F1;
+    E --> G1;
+    F1 --> F2;
+    G1 --> G2;
+    F2 & G2 --> H;
+    H --> I;
+    I --> J;
+    J --> K --> L;
+
+    class A,B,C,D phase1;
+    class E,F1,F2,G1,G2,H,I phase2;
+    class J,K,L phase3;
+            </pre>
+            
+            <div id="mermaid-output"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        async function renderDiagram() {
+            const sourceElement = document.querySelector('#graph-definition');
+            const outputElement = document.querySelector('#mermaid-output');
+            const graphDefinition = sourceElement.textContent;
+            
+            try {
+                // Render the graph
+                const { svg } = await mermaid.render('rendered-svg', graphDefinition);
+                outputElement.innerHTML = svg;
+                
+                // Initialize Pan/Zoom on the new SVG
+                const svgElement = outputElement.querySelector('svg');
+                svgElement.setAttribute('width', '100%');
+                svgElement.setAttribute('height', '100%');
+                
+                window.panZoomInstance = svgPanZoom(svgElement, {
+                    zoomEnabled: true,
+                    controlIconsEnabled: false,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.5,
+                    maxZoom: 10
+                });
+            } catch (e) {
+                outputElement.innerHTML = `<div style="color:red; padding:20px">Error rendering diagram: ${e.message}</div>`;
+                console.error(e);
+            }
+        }
+
+        renderDiagram();
+    </script>
+
+    <script>
+        function resetZoom() {
+            if (window.panZoomInstance) {
+                window.panZoomInstance.reset();
+                window.panZoomInstance.fit();
+                window.panZoomInstance.center();
+            }
+        }
+    </script>
+</body>
+</html>
+    
