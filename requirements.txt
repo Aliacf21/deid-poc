@@ -1,0 +1,10 @@
+azure-cognitiveservices-speech
+azure-health-deidentification
+azure-identity
+yt-dlp
+python-dotenv
+azure-storage-blob
+requests
+opencv-python
+numpy
+google-generativeai

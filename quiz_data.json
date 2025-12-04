@@ -1,0 +1,124 @@
+{
+  "questions": [
+    {
+      "question": "A 46-year-old male with extensive travel to Southeast Asia and Israel presents with a right atrial pseudoaneurysm, new multifocal pulmonary nodules, CNS lesions, and sclerotic bone foci. Based on the differential discussed, which combination of factors strongly suggested Brucellosis as a potential diagnosis?",
+      "options": [
+        "Travel to Southeast Asia, eosinophilia, and pulmonary nodules",
+        "Recent travel to Israel, bony lesions, neurologic manifestations, and pericardial involvement",
+        "Strict Kosher diet, fishing hobby, and word-finding difficulty",
+        "Prior hernia repair, pet dog exposure, and low-grade fevers"
+      ],
+      "correctAnswer": "Recent travel to Israel, bony lesions, neurologic manifestations, and pericardial involvement",
+      "rationale": "The speaker explicitly states that Brucellosis was on their differential 'given the Bony lesions the neurologic lesions and the paracardial involvement in the travel Israel' [T=1068]. The transcript also notes that there have been outbreaks of Brucellosis in Israel, making the travel history a key epidemiological link.",
+      "timestamp": 1068
+    },
+    {
+      "question": "According to the speaker's review of the literature, a cohort study from Stanford highlighted a common misdiagnosis for patients who ultimately had invasive mold infections. What was the initial, incorrect diagnosis for these patients?",
+      "options": [
+        "Pulmonary tuberculosis",
+        "Lymphoma",
+        "Non-small cell lung cancer",
+        "Sarcoidosis"
+      ],
+      "correctAnswer": "Non-small cell lung cancer",
+      "rationale": "The transcript references a specific 'interesting cohort study out of Stanford where they had 12 patients who had invasive molds who actually were initially diagnosed with non-small cell lung cancer' [T=988-994]. This underscores the potential for fungal infections to mimic primary pulmonary malignancy.",
+      "timestamp": 994
+    },
+    {
+      "question": "The presenter categorizes several pathogens as 'Great Infectious Mimickers' of malignancy. Based on this classification, which of the following groups belongs to this top-tier category?",
+      "options": [
+        "Nocardia, Actinomyces, Bartonella, Helminths",
+        "Mycobacteria, Fungal infections, Syphilis, Brucellosis",
+        "Toxoplasma, Cryptococcus, Bartonella, Melioidosis",
+        "Salmonella, Q Fever, JC Virus, HHV-6"
+      ],
+      "correctAnswer": "Mycobacteria, Fungal infections, Syphilis, Brucellosis",
+      "rationale": "The speaker explicitly defines a category called 'the great infectious mimickers' [T=958] and lists the following organisms: 'microbacteria being at the top of this list' [T=961], 'fungal infections' [T=981], 'syphilis' [T=1000], and 'brosis talk a little bit about' (Brucellosis) [T=1027]. The organisms in the other options were either mentioned in the 'Lesser known mimics' category or as part of the broad differential.",
+      "timestamp": 958
+    },
+    {
+      "question": "A study from MD Anderson, discussed in the presentation, found that Bartonella henselae (Cat Scratch Disease) frequently mimicked malignancy. Which of the following malignancies was NOT mentioned as being mimicked by Bartonella in that study's cohort or associated literature review?",
+      "options": [
+        "Lymphoma",
+        "Sarcoma",
+        "Glioblastoma",
+        "Solid tumors and skin cancer"
+      ],
+      "correctAnswer": "Glioblastoma",
+      "rationale": "The transcript summarizes the findings from the MD Anderson study and its literature review [T=1232], stating that Bartonella mimicked 'lymphoma as well as solid tumors... sarcoma and skin cancer' [T=1243-1248]. Glioblastoma was not mentioned in this context.",
+      "timestamp": 1243
+    },
+    {
+      "question": "The final diagnosis in the presented case was angiosarcoma. The speaker noted that angiosarcoma itself is a great mimicker. Which of the following conditions was cited in the transcript as a presentation that can be mimicked by angiosarcoma?",
+      "options": [
+        "Disseminated Nocardiosis",
+        "Viral meningitis",
+        "Cellulitis of the scalp",
+        "Aseptic pericarditis secondary to a rheumatologic disease"
+      ],
+      "correctAnswer": "Cellulitis of the scalp",
+      "rationale": "The speaker reviews several ways angiosarcoma can mimic infection, including 'angio saroma mimicking cellulitis so people who initially were diagnosed with cellulitis of the scalp and facial cellulitis actually end up having contous angiosarcoma' [T=1284-1290].",
+      "timestamp": 1285
+    },
+    {
+      "question": "The speaker highlights 'Lesser known mimics' of malignancy. Which of the following pathogens, known for causing a wide spectrum from granulomatous lymphadenitis to bacillary angiomatosis, was placed in this specific category?",
+      "options": [
+        "Syphilis",
+        "Mycobacterium tuberculosis",
+        "Burkholderia pseudomallei",
+        "Bartonella"
+      ],
+      "correctAnswer": "Bartonella",
+      "rationale": "The transcript introduces a distinct section for 'the Lesser known mimics' [T=1097] and the first organism discussed is 'bonella being on this list U mimicking different solid tumors like breast cancer lymphoma and saroma' [T=1103-1108]. Syphilis and Mycobacteria were classified as 'Great' mimics.",
+      "timestamp": 1099
+    },
+    {
+      "question": "Given the patient's travel history to Malaysia, China, and Vietnam, the speaker considered a specific parasitic infection that can mimic both metastatic pulmonary tumors and angiosarcoma. What was this infection?",
+      "options": [
+        "Paragonimiasis",
+        "Toxoplasmosis",
+        "Cysticercosis",
+        "Echinococcosis"
+      ],
+      "correctAnswer": "Paragonimiasis",
+      "rationale": "The speaker directly links the travel history to this specific parasite, stating: 'I was really interested in this patient about Paragon amasis given his travel to Southeast Asia' [T=1128-1131]. They further support this by citing a case report of pulmonary paragonimiasis 'mimicking a metastatic pulmonary tumor as well as mimicking an saroma' [T=1136-1142].",
+      "timestamp": 1130
+    },
+    {
+      "question": "The presenter noted that Osler originally coined the term 'the great imitator'. Which infectious disease was Osler referring to?",
+      "options": [
+        "Tuberculosis",
+        "Syphilis",
+        "Malaria",
+        "Brucellosis"
+      ],
+      "correctAnswer": "Syphilis",
+      "rationale": "This is a direct attribution from the transcript. The speaker states, 'I think it was ozler who called syphilis the great imitator' [T=1000-1002], highlighting its historical significance as a mimicker of various diseases.",
+      "timestamp": 1001
+    },
+    {
+      "question": "Despite a comprehensive workup including BAL, CSF analysis, broad serologies, and Karius next-generation sequencing, the diagnosis remained elusive. What was the pivotal diagnostic procedure that yielded the final diagnosis of angiosarcoma?",
+      "options": [
+        "Biopsy of a sclerotic iliac bone focus",
+        "Open lung biopsy of a pulmonary nodule",
+        "IR-guided biopsy of a pericardial lymph node",
+        "Repeat CSF analysis with cytology"
+      ],
+      "correctAnswer": "IR-guided biopsy of a pericardial lymph node",
+      "rationale": "The transcript reveals the diagnostic turning point: 'so he underwent IR biopsy one of the paracardial lymph no you time to have angio sarcoma' [T=897-904]. This emphasizes the key learning point that 'tissue is the issue' when extensive non-invasive testing is negative.",
+      "timestamp": 897
+    },
+    {
+      "question": "A key finding in the patient's initial presentation two months prior was the cytopathology of the pericardial fluid. Which finding was explicitly mentioned in the transcript?",
+      "options": [
+        "Predominantly malignant cells with high nuclear-to-cytoplasmic ratio",
+        "A pure neutrophilic infiltrate with gram-positive cocci",
+        "Mixed inflammatory cells with numerous eosinophils and reactive mesothelial cells",
+        "A lymphocytic predominance with positive AFB stain"
+      ],
+      "correctAnswer": "Mixed inflammatory cells with numerous eosinophils and reactive mesothelial cells",
+      "rationale": "The speaker describes the initial findings from two months prior, stating the 'cytopathology of the paracardial fluid showed some mixed inflammatory cells with numerous eosinophils reactive mesothelial cells histiocytes and pyes' [T=57-64]. This inflammatory, eosinophil-rich picture contributed to the initial diagnostic uncertainty.",
+      "timestamp": 59
+    }
+  ]
+}

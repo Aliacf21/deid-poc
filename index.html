@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Rounds Board Review Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .video-container {
+            flex: 1;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-container {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background-color: white;
+            border-left: 1px solid #ddd;
+        }
+
+        .question-card {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .question-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .option {
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .option:hover {
+            background-color: #f9f9f9;
+            border-color: #bbb;
+        }
+
+        .option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .option.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .option.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .rationale {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #17a2b8;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .timestamp-link {
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .timestamp-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .video-container {
+                flex: none;
+                height: 40vh; /* Adjust as needed */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Grand Rounds: Great Mimickers Quiz</h1>
+    </header>
+    <div class="container">
+        <div class="video-container">
+            <!-- YouTube IFrame will be replaced here -->
+            <div id="player"></div>
+        </div>
+        <div class="quiz-container" id="quiz-content">
+            <!-- Questions will be injected here -->
+            <p>Loading quiz data...</p>
+        </div>
+    </div>
+
+    <script>
+        // YouTube Player API
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'mM3mutz432w', // Extracted from URL: https://youtu.be/mM3mutz432w
+                playerVars: {
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // Player is ready
+        }
+
+        function seekToTimestamp(seconds) {
+            if (player && player.seekTo) {
+                player.seekTo(seconds, true);
+                player.playVideo();
+            }
+        }
+
+        // Load YouTube Iframe API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Quiz Logic
+        async function loadQuiz() {
+            try {
+                const response = await fetch('quiz_data.json');
+                const data = await response.json();
+                renderQuiz(data.questions);
+            } catch (error) {
+                console.error('Error loading quiz:', error);
+                document.getElementById('quiz-content').innerHTML = '<p>Error loading quiz data. Please ensure quiz_data.json exists.</p>';
+            }
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function renderQuiz(questions) {
+            const container = document.getElementById('quiz-content');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+
+                const questionText = document.createElement('div');
+                questionText.className = 'question-text';
+                questionText.textContent = `${index + 1}. ${q.question}`;
+                card.appendChild(questionText);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                q.options.forEach(opt => {
+                    const li = document.createElement('li');
+                    li.className = 'option';
+                    li.textContent = opt;
+                    li.onclick = () => checkAnswer(li, opt, q.correctAnswer, rationaleDiv, q.timestamp);
+                    optionsList.appendChild(li);
+                });
+                card.appendChild(optionsList);
+
+                const rationaleDiv = document.createElement('div');
+                rationaleDiv.className = 'rationale';
+                
+                // Construct rationale content with clickable timestamp
+                let rationaleHTML = `<p><strong>Rationale:</strong> ${q.rationale}</p>`;
+                if (q.timestamp) {
+                    rationaleHTML += `<p><a class="timestamp-link" onclick="seekToTimestamp(${q.timestamp})">▶ Jump to explanation at ${formatTime(q.timestamp)}</a></p>`;
+                }
+                rationaleDiv.innerHTML = rationaleHTML;
+                
+                card.appendChild(rationaleDiv);
+                container.appendChild(card);
+            });
+        }
+
+        function checkAnswer(selectedLi, selectedOption, correctAnswer, rationaleDiv, timestamp) {
+            // Prevent re-clicking if already answered (optional, but good UX)
+            const parentUl = selectedLi.parentElement;
+            if (parentUl.querySelector('.correct') || parentUl.querySelector('.incorrect')) {
+                return; 
+            }
+
+            if (selectedOption === correctAnswer) {
+                selectedLi.classList.add('correct');
+            } else {
+                selectedLi.classList.add('incorrect');
+                // Highlight the correct answer
+                Array.from(parentUl.children).forEach(li => {
+                    if (li.textContent === correctAnswer) {
+                        li.classList.add('correct');
+                    }
+                });
+            }
+
+            // Show rationale
+            rationaleDiv.style.display = 'block';
+            
+            // Optional: Auto-seek to timestamp on answer (uncomment if desired)
+            // if (timestamp) seekToTimestamp(timestamp);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadQuiz);
+    </script>
+</body>
+</html>
