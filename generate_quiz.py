@@ -10,10 +10,7 @@ load_dotenv()
 # 1. Configure Gemini (Get API key from aistudio.google.com)
 api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
-    # Fallback or prompt user if not in env
     print("Warning: GOOGLE_API_KEY not found in environment variables.")
-    # You might want to set it manually here for testing if not using .env
-    # os.environ["GOOGLE_API_KEY"] = "YOUR_GOOGLE_API_KEY"
 else:
     genai.configure(api_key=api_key)
 
@@ -46,10 +43,8 @@ def parse_srt(file_path):
     
     return formatted_transcript
 
-def generate_quiz_with_gemini_3(full_transcript_text):
-    # 'gemini-1.5-pro' was not found in the list.
-    # 'gemini-2.0-pro-exp' hit quota limits.
-    # Trying 'gemini-2.5-pro' which is available in the model list and represents a high-tier reasoning model.
+def generate_quiz_with_gemini_optimized(full_transcript_text):
+    # Using 'gemini-2.5-pro' as it is available and supports high reasoning.
     model_name = 'gemini-2.5-pro' 
     
     try:
@@ -58,77 +53,69 @@ def generate_quiz_with_gemini_3(full_transcript_text):
         print(f"Error initializing model '{model_name}': {e}")
         return None
 
+    # Optimized Prompt for Senior Fellows / Board Review
     prompt = f"""
 ### ROLE
-
-You are an expert Program Director for an Infectious Disease and Oncology Fellowship. 
-
-Your goal is to create a high-stakes board review quiz based *strictly* on the provided transcript.
+You are a Senior Item Writer for the American Board of Internal Medicine (ABIM), specifically for the Infectious Disease and Oncology sub-specialty boards. Your audience consists of Senior Fellows who are already experts. 
+* **Do not** test them on basic definitions. 
+* **Test them** on nuance, clinical judgment, managing uncertainty, and third-order reasoning (why a specific rule-out occurred).
 
 ### INPUT CONTEXT
+The provided transcript is a Grand Rounds presentation regarding "The Great Mimicker" (Angiosarcoma) and its confusion with infectious etiologies (Bartonella, Brucella, Syphilis, Fungal, Mycobacterial).
 
-The transcript is a Grand Rounds presentation regarding "Great Mimickers" (infections mimicking malignancies and vice versa).
-
-TRANSCRIPT:
-
+**TRANSCRIPT:**
 {full_transcript_text}
 
-### PRE-COMPUTATION (INTERNAL CHAIN OF THOUGHT)
+### INSTRUCTION: STEP-BY-STEP GENERATION
 
-Before generating the quiz, analyze the transcript to identify **High-Value Teaching Points**. 
+**STEP 1: META-COGNITIVE ANALYSIS (Internal Thought Process)**
+Before writing questions, analyze the transcript to identify:
+1.  **The "Red Herrings":** What specific clinical features pointed to infection but were actually malignancy? (e.g., The travel history to Israel suggesting Brucella, the cat exposure suggesting Bartonella).
+2.  **The Differential Logic:** Why specifically were organisms like Nocardia, Syphilis, or Paragonimus ruled out? (Find the specific lab result or clinical reasoning in the text).
+3.  **The Literature Pearls:** Extract specific data points from the cited cohorts (MD Anderson, Japanese cohort) regarding misdiagnosis rates.
 
-Prioritize the following:
+**STEP 2: QUESTION GENERATION**
+Generate 10 High-Stakes Board Review Questions in JSON format.
 
-1.  **Complex Synthesis:** Cases requiring the combination of travel history + specific organ involvement (e.g., Israel + Neuro + Bone -> Brucellosis).
+### QUESTION DESIGN GUIDELINES
 
-2.  **Literature Review:** Specific statistics or findings from the studies cited (e.g., The MD Anderson Bartonella study, the Stanford invasive mold study).
+1.  **Vignette-Based Stems:** Do not use phrases like "According to the transcript." Instead, simulate the clinical scenario described or a similar scenario derived from the literature review. 
+    * *Bad:* "What did the speaker say about Bartonella?"
+    * *Good:* "A patient with a history of cat exposure presents with lymphadenopathy and is initially diagnosed with Lymphoma. Based on the MD Anderson cohort discussed, which organism should be reconsidered?"
 
-3.  **Counter-Intuitive Mimics:** "Lesser known" mimics highlighted by the speaker (e.g., Angiosarcoma presenting as Cellulitis).
+2.  **Distractor Engineering (Crucial):** * Distractors must be **clinically plausible** based on the transcript's differential.
+    * Use the specific organisms discussed (e.g., Nocardia, Actinomyces, Syphilis, IgG4 disease) as distractors.
+    * Avoid obvious wrong answers.
 
-### TASK
-
-Generate 10 Multiple Choice Questions (JSON format) based on the analysis above.
-
-### DIFFICULTY GUIDELINES
-
-1.  **No Simple Recall:** Do not ask "What was the patient's job?". Ask "Given the patient's travel to [Region] and [Symptom], what is the primary differential?".
-
-2.  **Plausible Distractors:** The wrong answers (options) must be clinically realistic "red herrings" mentioned in the differential diagnosis sections of the text.
-
-3.  **Attribution:** The 'rationale' must explicitly reference *why* the answer is correct based on the speaker's specific comments or the literature cited.
+3.  **Rationale Requirement:** * The rationale must explain *why* the correct answer is right.
+    * It must also explain *specifically why* the distractors are wrong based on the case facts provided in the transcript (e.g., "Brucella is incorrect because despite the travel to Israel and bone lesions, the serology was negative.").
 
 ### OUTPUT FORMAT
-
-Return **ONLY** valid JSON. Do not include markdown formatting (like ```json). 
-
-Do not output your "thinking" text separately; embed the reasoning into the "rationale" field.
-
-Structure:
+Return **ONLY** valid JSON.
 
 {{
-
+    "analysis_of_transcript": "A brief summary of the clinical logic, rule-outs, and key literature citations found in the text...",
     "questions": [
-
         {{
-
-            "question": "Clinical vignette or literature-based question text",
-
-            "options": ["Option A", "Option B", "Option C", "Option D"],
-
-            "correctAnswer": "Option A",
-
-            "rationale": "Deep explanation linking the clinical clues to the diagnosis, citing the specific study or logic from the transcript.",
-
-            "timestamp": 123 // The integer second marker [T=123] closest to where this answer is discussed.
-
+            "question_id": 1,
+            "difficulty": "Fellowship-Level",
+            "concept_tested": "Angiosarcoma Mimicry vs. Infectious Etiology",
+            "question_text": "A 46-year-old male with a history of repaired right atrial pseudoaneurysm presents with new pulmonary nodules and cerebral lesions. He has extensive travel history to Israel and Southeast Asia. Initial workup for infectious etiologies is negative. Given the clinical progression described, which malignancy is known to specifically mimic this presentation of pericarditis and multifocal disease?",
+            "options": [
+                "Disseminated Nocardiosis",
+                "Primary Cardiac Angiosarcoma",
+                "Neuro-Brucellosis",
+                "Lymphoma"
+            ],
+            "correct_option_index": 1,
+            "explanation": "CORRECT: The case concludes with a diagnosis of Angiosarcoma, which mimicked pericarditis and multifocal infection. INCORRECT (A): Nocardia was considered due to brain/lung involvement but BAL was negative. INCORRECT (C): Brucella was high on the differential due to Israel travel and bone lesions, but serologies were negative.",
+            "timestamp_reference": 1234
         }}
-
     ]
-
 }}
 """
 
-    # Gemini 1.5 Pro/Flash supports system instructions and response_mime_type
+    # Gemini 1.5 Pro supports response_mime_type to ensure valid JSON
     try:
         response = model.generate_content(
             prompt,
@@ -140,7 +127,6 @@ Structure:
         return None
 
 # --- Execution ---
-# Ensure you have your .srt file ready
 if __name__ == "__main__":
     input_file = 'requested_transcript.en.srt'
     print(f"Processing {input_file}...")
@@ -148,19 +134,26 @@ if __name__ == "__main__":
     transcript_text = parse_srt(input_file)
     
     if transcript_text and not transcript_text.startswith("Error"):
-        print("Transcript parsed. Generating quiz...")
-        json_output = generate_quiz_with_gemini_3(transcript_text)
+        print("Transcript parsed. Generating Senior Fellow Board Review Quiz...")
+        json_output = generate_quiz_with_gemini_optimized(transcript_text)
 
         if json_output:
             print("Gemini Generation Complete.")
             
             # Save to file
             output_file = 'quiz_data.json'
-            with open(output_file, 'w') as f:
+            with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(json_output)
             print(f"Quiz saved to {output_file}")
+            
+            # Optional: Print the analysis to show the CoT worked
+            try:
+                data = json.loads(json_output)
+                print("\n--- AI Clinical Analysis ---")
+                print(data.get("analysis_of_transcript", "No analysis found."))
+            except json.JSONDecodeError:
+                pass
         else:
             print("Failed to generate quiz.")
     else:
         print(transcript_text)
-

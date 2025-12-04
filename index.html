@@ -609,17 +609,24 @@ graph TD
 
                 const questionText = document.createElement('div');
                 questionText.className = 'question-text';
-                questionText.textContent = `${index + 1}. ${q.question}`;
+                // Updated to match new JSON structure (question_text)
+                questionText.textContent = `${index + 1}. ${q.question_text || q.question}`; 
                 card.appendChild(questionText);
 
                 const optionsList = document.createElement('ul');
                 optionsList.className = 'options';
 
+                // Determine correct answer string (handle index or direct string)
+                let correctOptionStr = q.correctAnswer;
+                if (q.correct_option_index !== undefined && q.options) {
+                    correctOptionStr = q.options[q.correct_option_index];
+                }
+
                 q.options.forEach(opt => {
                     const li = document.createElement('li');
                     li.className = 'option';
                     li.textContent = opt;
-                    li.onclick = () => checkAnswer(li, opt, q.correctAnswer, rationaleDiv);
+                    li.onclick = () => checkAnswer(li, opt, correctOptionStr, rationaleDiv);
                     optionsList.appendChild(li);
                 });
                 card.appendChild(optionsList);
@@ -627,9 +634,25 @@ graph TD
                 const rationaleDiv = document.createElement('div');
                 rationaleDiv.className = 'rationale';
                 
-                let rationaleHTML = `<p><strong>Rationale:</strong> ${q.rationale}</p>`;
-                if (q.timestamp) {
-                    rationaleHTML += `<p><a class="timestamp-link" onclick="seekToTimestamp(${q.timestamp})">▶ Jump to explanation at ${formatTime(q.timestamp)}</a></p>`;
+                // Updated to match new JSON structure (explanation)
+                const explanationText = q.explanation || q.rationale || "No explanation provided.";
+                let rationaleHTML = `<p><strong>Rationale:</strong> ${explanationText}</p>`;
+                
+                // Handle timestamp reference (string range or number)
+                let timestampVal = null;
+                const tsRef = q.timestamp_reference || q.timestamp;
+                
+                if (tsRef) {
+                    if (typeof tsRef === 'string') {
+                        const match = tsRef.match(/(\d+)/);
+                        if (match) timestampVal = parseInt(match[1], 10);
+                    } else if (typeof tsRef === 'number') {
+                        timestampVal = tsRef;
+                    }
+                }
+
+                if (timestampVal !== null) {
+                    rationaleHTML += `<p><a class="timestamp-link" onclick="seekToTimestamp(${timestampVal})">▶ Jump to explanation at ${formatTime(timestampVal)}</a></p>`;
                 }
                 rationaleDiv.innerHTML = rationaleHTML;
                 
