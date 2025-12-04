@@ -1,0 +1,38 @@
+{
+  "case_summary": "A 46-year-old male with a significant international travel history presents with recurrent chest pain, headache, and nausea two months after surgical repair of a right atrial pseudoaneurysm. At that time, pericardial fluid showed inflammatory cells and eosinophils. Current imaging reveals a multi-system process with new bilateral pulmonary nodules, pericardial masses, sclerotic bone foci, and multiple enhancing brain lesions. Lab work is notable for peripheral eosinophilia. The central challenge is to establish a unifying diagnosis for this complex, rapidly progressing condition.",
+  "stops": [
+    {
+      "sequence_id": 1,
+      "title": "Formulating the Initial Differential",
+      "stop_timestamp_seconds": 139,
+      "resume_timestamp_seconds": 327,
+      "question_for_trainee": "Based on the initial presentation—a 46-year-old male with a recent atrial pseudoaneurysm, eosinophilia, and now multi-system involvement (lungs, brain, bone, pericardium) after extensive travel—what is your differential diagnosis? Categorize it into infectious, inflammatory, and malignant possibilities.",
+      "expert_insight": "The expert correctly frames the problem as a widely disseminated process with multifocal involvement. She systematically considers broad categories (bacterial, atypical bacterial, mycobacterial, fungal, parasitic) while acknowledging the unusual tempo and the initial inflammatory findings.",
+      "expert_quote_verbatim": "so this is a 46 year old with an extensive travel history and a prior unclear ideology um pseudoaneurysm which had some inflammatory features",
+      "novice_trap": "A novice might anchor on the recent travel history to Asia and immediately suspect an exotic parasitic or fungal infection, overlooking the possibility of a non-infectious etiology.",
+      "suggested_visual": "Map of Southeast Asia showing endemic areas for Melioidosis"
+    },
+    {
+      "sequence_id": 2,
+      "title": "Weighing Infectious vs. Malignant Mimics",
+      "stop_timestamp_seconds": 247,
+      "resume_timestamp_seconds": 347,
+      "question_for_trainee": "The patient has features suggestive of both infection (fever, travel, eosinophilia) and malignancy (multifocal masses, constitutional symptoms). Which features point more strongly towards an infectious process, and which point more towards malignancy?",
+      "expert_insight": "An expert recognizes that significant overlap exists between disseminated infections and metastatic cancer. They would weigh the subacute timeline, the eosinophilia, and the travel history as favoring an atypical infection (e.g., fungal, parasitic, mycobacterial).",
+      "expert_quote_verbatim": "I think much more plausible seems to be something like an atypical process which on which I would include microbacterial infection",
+      "novice_trap": "Focusing too heavily on the 'classic' presentations of either infection or malignancy.",
+      "suggested_visual": "CT Chest showing 'Halo Sign' in pulmonary nodules"
+    },
+    {
+      "sequence_id": 3,
+      "title": "The Diagnostic Imperative: Tissue is the Issue",
+      "stop_timestamp_seconds": 903,
+      "resume_timestamp_seconds": 904,
+      "question_for_trainee": "Given the extensive but non-diagnostic initial workup and the presence of accessible lesions in the lungs and pericardium, what is the next best diagnostic step? Justify your choice.",
+      "expert_insight": "The expert understands that with multifocal disease and a broad differential, serology and non-invasive tests have reached their limit of utility. The highest yield and most definitive step is to obtain tissue.",
+      "expert_quote_verbatim": "I I uh I think this is where tissue is the issue",
+      "novice_trap": "A novice might continue to order more non-invasive tests, such as extensive serologies or repeat imaging, hoping for a clearer answer.",
+      "suggested_visual": "Histopathology of Angiosarcoma"
+    }
+  ]
+}

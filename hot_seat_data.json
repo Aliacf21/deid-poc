@@ -1,0 +1,59 @@
+[
+  {
+    "decision_point_name": "Filtering Signal from Noise in Exposures",
+    "timestamp_seconds": 137,
+    "question_for_learner": "The initial presentation included pericarditis and eosinophils in the pericardial fluid. Given the patient's extensive travel and exposure history, which element is most likely to be a clinically relevant 'signal' rather than 'noise'?",
+    "options": [
+      "Recent travel to Israel (10 days prior)",
+      "Travel to Southeast Asia (Malaysia, China, Vietnam) within 2 years",
+      "Close contact with a brother's exotic birds and lizard",
+      "Keeping a strict Kosher diet"
+    ],
+    "correct_answer": "Travel to Southeast Asia (Malaysia, China, Vietnam) within 2 years",
+    "answer_timestamp_seconds": 500,
+    "feedback": {
+      "novice_trap": "Anchoring on the most recent travel (Israel) or a single exotic exposure (lizard) without integrating the full clinical syndrome, particularly the eosinophilia and potential for an indolent, multi-system process.",
+      "expert_insight": "An expert synthesizes the entire clinical picture. The combination of multi-systemic disease (cardiac, potential for others), eosinophilia, and travel history makes endemic infections from Southeast Asia, like melioidosis (which can cause mycotic aneurysms) or parasitic infections (e.g., paragonimiasis, explaining eosinophilia and lung/CNS findings), a higher initial probability than exposures from other locations.",
+      "expert_quote_verbatim": "would they be like um the uh birkhold area mosis type of presentation with his travel to Southeast Asia and other locations where that's endemic"
+    },
+    "suggested_visual": "Map of melioidosis endemic areas"
+  },
+  {
+    "decision_point_name": "Synthesizing Disseminated Disease",
+    "timestamp_seconds": 246,
+    "question_for_learner": "Imaging now reveals a rapidly progressive, multi-system process involving new pulmonary nodules with halo signs, pericardial soft tissue masses, sclerotic bone foci, and multiple enhancing hemorrhagic brain lesions. Which diagnostic category should now be at the top of your differential?",
+    "options": [
+      "Disseminated mycobacterial infection",
+      "Angioinvasive fungal infection (e.g., Aspergillus)",
+      "Metastatic malignancy",
+      "Systemic autoimmune/vasculitic process"
+    ],
+    "correct_answer": "Metastatic malignancy",
+    "answer_timestamp_seconds": 904,
+    "feedback": {
+      "novice_trap": "Anchoring on the 'halo sign' as being pathognomonic for an angioinvasive fungal infection. While a classic association, it is not specific and can be seen in aggressive vascular tumors.",
+      "expert_insight": "When a presumed infectious process is this explosive, involves solid masses in multiple organ systems (heart, lung, bone, brain), and initial cultures from the primary site were negative, the pre-test probability of a non-infectious mimic, particularly an aggressive malignancy, becomes extremely high. The constellation of findings fits better with hematogenous spread of a tumor than with most infectious pathogens.",
+      "expert_quote_verbatim": "what are what infections are mimickers of malignancy and then what malignancy can mimic infection"
+    },
+    "suggested_visual": "Image of CT Chest Halo Sign"
+  },
+  {
+    "decision_point_name": "The Final Pivot After a Negative Workup",
+    "timestamp_seconds": 894,
+    "question_for_learner": "An exhaustive infectious disease workup—including cultures from lung biopsy, CSF analysis, extensive serologies, and plasma cell-free DNA sequencing (Karius)—is entirely negative. A biopsy of a pericardial mass is performed. What is the most likely pathologic diagnosis?",
+    "options": [
+      "Granulomatous inflammation consistent with culture-negative TB",
+      "Lymphoproliferative disorder (Lymphoma)",
+      "A high-grade vascular sarcoma",
+      "Fibrosis and inflammatory cells, non-diagnostic"
+    ],
+    "correct_answer": "A high-grade vascular sarcoma",
+    "answer_timestamp_seconds": 904,
+    "feedback": {
+      "novice_trap": "Persisting with a search for an esoteric, culture-negative organism despite an overwhelmingly negative advanced diagnostic workup. This represents 'infectious diseases chauvinism'—the belief that every complex presentation must have an infectious cause.",
+      "expert_insight": "A completely negative, comprehensive infectious workup is a powerful piece of data that dramatically increases the likelihood of a non-infectious mimic. The initial presentation with a pseudoaneurysm, combined with hemorrhagic metastases and pericardial masses, is a classic triad for a primary cardiac angiosarcoma, a rare but important malignancy that mimics infection.",
+      "expert_quote_verbatim": "and that angio saroma can mimic multiple different diseases... infected aneurysm and pseudo aneurysm... mimicking pericarditis"
+    },
+    "suggested_visual": "Histopathology of angiosarcoma H&E stain"
+  }
+]

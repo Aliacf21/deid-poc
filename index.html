@@ -350,12 +350,25 @@
             <div class="tabs">
                 <button class="tab-button active" onclick="switchTab('quiz')">Board Review Quiz</button>
                 <button class="tab-button" onclick="switchTab('map')">Visual Differential Map</button>
+                <button class="tab-button" onclick="switchTab('hotseat')">Hot Seat (Live)</button>
                 <button class="tab-button" onclick="switchTab('chat')">Ask the Speaker</button>
             </div>
             
             <!-- QUIZ TAB -->
             <div id="quiz" class="tab-content active">
                 <p>Loading quiz data...</p>
+            </div>
+
+            <!-- HOT SEAT TAB -->
+            <div id="hotseat" class="tab-content">
+                <div id="hotseat-status" style="padding: 40px 20px; text-align: center; color: #546e7a;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">👨‍⚕️</div>
+                    <h3 style="margin: 0 0 10px 0; color: #37474f;">Clinical Simulation Active</h3>
+                    <p style="font-size: 1.1rem; margin: 0;">Follow the case presentation. The simulation will pause at critical decision points for you to weigh in.</p>
+                </div>
+                <div id="hotseat-interaction" style="display:none;">
+                    <!-- Dynamic Content injected here -->
+                </div>
             </div>
             
             <!-- MAP TAB -->
@@ -565,6 +578,7 @@ graph TD
                 // Mapping tabs to buttons
                 if (tabName === 'map' && btnText.includes('visual')) btn.classList.add('active');
                 else if (tabName === 'quiz' && btnText.includes('quiz')) btn.classList.add('active');
+                else if (tabName === 'hotseat' && btnText.includes('hot')) btn.classList.add('active');
                 else if (tabName === 'chat' && btnText.includes('ask')) btn.classList.add('active');
             });
 
@@ -582,6 +596,9 @@ graph TD
         }
 
         // --- Data Loading ---
+        let hotSeatStops = [];
+        let hotSeatActive = false; // Prevent multiple triggers for same stop
+
         async function loadData() {
             try {
                 const qResp = await fetch('quiz_data.json');
@@ -590,6 +607,230 @@ graph TD
             } catch (e) {
                 document.getElementById('quiz').innerHTML = '<p>Error loading quiz. Make sure server.py is running.</p>';
             }
+
+            try {
+                const hsResp = await fetch('simulation_data.json');
+                const hsData = await hsResp.json();
+                
+                // Handle both array format (new) and object format (old)
+                let rawStops = [];
+                if (Array.isArray(hsData)) {
+                    rawStops = hsData;
+                } else if (hsData.stops) {
+                    rawStops = hsData.stops;
+                }
+                
+                // Map new schema to internal structure if needed, or just use new fields
+                hotSeatStops = rawStops.map(stop => ({
+                    ...stop,
+                    // Compatibility mapping
+                    timestamp_seconds: stop.stop_timestamp_seconds || stop.timestamp_seconds,
+                    answer_timestamp_seconds: stop.resume_timestamp_seconds || stop.answer_timestamp_seconds,
+                    question: stop.question_for_trainee || stop.question_for_learner || stop.prompt || stop.question,
+                    phase_name: stop.title || stop.decision_point_name || stop.stop_title || stop.phase_name
+                })).sort((a, b) => a.timestamp_seconds - b.timestamp_seconds);
+                
+                // Ensure sequence_id exists
+                hotSeatStops.forEach((stop, index) => {
+                    if (!stop.sequence_id && !stop.id) stop.sequence_id = index + 1;
+                });
+
+                console.log("Hot Seat stops loaded:", hotSeatStops);
+                startHotSeatMonitor();
+            } catch (e) {
+                console.log("Hot Seat data not found or error loading:", e);
+            }
+        }
+
+        function startHotSeatMonitor() {
+            setInterval(() => {
+                if (!player || typeof player.getCurrentTime !== 'function') return;
+                
+                const currentTime = player.getCurrentTime();
+                // Check if we are near a stop (within 2 seconds) and haven't triggered it yet
+                const nextStop = hotSeatStops.find(s => Math.abs(s.timestamp_seconds - currentTime) < 1.5);
+                
+                if (nextStop && !hotSeatActive) {
+                    triggerHotSeat(nextStop);
+                }
+            }, 1000);
+        }
+
+        function triggerHotSeat(stopData) {
+            hotSeatActive = true;
+            player.pauseVideo();
+            switchTab('hotseat');
+            
+            const container = document.getElementById('hotseat-interaction');
+            const status = document.getElementById('hotseat-status');
+            
+            status.style.display = 'none';
+            container.style.display = 'block';
+            
+            // Handle nested feedback object or flat fields (compatibility)
+            const feedback = stopData.feedback || stopData;
+            const question = stopData.question_for_learner || stopData.clinical_question || stopData.prompt || stopData.question;
+            const title = stopData.decision_point_name || stopData.stop_title || stopData.phase_name;
+
+            // Append new interaction to history instead of overwriting
+            const interactionDiv = document.createElement('div');
+            interactionDiv.className = 'hotseat-history-item';
+            interactionDiv.style.marginBottom = '40px';
+            
+            // PROFESSIONAL DESIGN
+            interactionDiv.innerHTML = `
+                <div style="background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e0e0e0; margin-bottom: 24px;">
+                    <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; margin-bottom: 12px;">
+                        Clinical Decision Node
+                    </div>
+                    <h3 style="margin: 0 0 16px 0; color: #2c3e50; font-size: 1.3rem; font-weight: 600;">${title}</h3>
+                    <p style="font-size: 1.05rem; line-height: 1.7; color: #34495e; margin-bottom: 24px;">${question}</p>
+                    
+                    <div>
+                        <textarea id="user-rationale-${stopData.sequence_id || stopData.id}" rows="3" 
+                            style="width:100%; padding:14px; border:1px solid #dcdcdc; border-radius:6px; font-family: 'Segoe UI', sans-serif; font-size: 1rem; line-height: 1.5; resize: vertical; transition: border-color 0.2s;" 
+                            placeholder="Share your reasoning..."></textarea>
+                        <button onclick="commitAnswer(${stopData.sequence_id || stopData.id})" 
+                            style="background-color: #3498db; color: white; padding: 10px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 12px; font-size: 0.95rem; transition: background 0.2s;">
+                            Submit & Compare
+                        </button>
+                    </div>
+                </div>
+
+                <div id="expert-feedback-${stopData.sequence_id || stopData.id}" style="display:none;">
+                    
+                    <!-- AI Feedback Section -->
+                    <div class="ai-feedback-slot"></div>
+
+                    <div style="background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; overflow: hidden; margin-top: 24px;">
+                        <div style="background: #e9ecef; padding: 12px 20px; font-size: 0.85rem; font-weight: 700; color: #495057; text-transform: uppercase; letter-spacing: 0.5px;">
+                            The Expert's Perspective
+                        </div>
+                        <div style="padding: 24px;">
+                            <p style="margin: 0 0 20px 0; line-height: 1.7; color: #2c3e50; font-size: 1rem;">${feedback.expert_insight || feedback.expert_thinking}</p>
+                            
+                            ${feedback.expert_quote_verbatim ? 
+                                `<div style="position: relative; padding-left: 20px; border-left: 4px solid #bdc3c7; margin-bottom: 20px;">
+                                    <div style="font-family: Georgia, serif; font-size: 1.1rem; font-style: italic; color: #555; line-height: 1.6;">
+                                        “${feedback.expert_quote_verbatim}”
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #95a5a6; margin-top: 6px;">— Verbatim Transcript</div>
+                                </div>` : ''}
+
+                            ${feedback.novice_trap ? 
+                                `<div style="background: #fff3cd; padding: 16px; border-radius: 6px; border: 1px solid #ffeeba; color: #856404; font-size: 0.95rem; line-height: 1.6;">
+                                    <strong>⚠️ Common Pitfall:</strong> ${feedback.novice_trap}
+                                </div>` : ''}
+                        </div>
+                        <div style="background: #f1f3f5; padding: 16px 24px; border-top: 1px solid #e9ecef; display: flex; gap: 12px;">
+                            ${stopData.answer_timestamp_seconds ? 
+                                `<button onclick="jumpToExpert(${stopData.answer_timestamp_seconds})" style="background-color: #2c3e50; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">▶ Watch Explanation</button>` 
+                                : ''}
+                            <button onclick="resumeVideo()" style="background-color: white; color: #495057; border: 1px solid #ced4da; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Continue Case</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(interactionDiv);
+        }
+
+        function jumpToExpert(seconds) {
+            hotSeatActive = false;
+            
+            // Log the action in the history stream instead of hiding everything
+            const container = document.getElementById('hotseat-interaction');
+            const logDiv = document.createElement('div');
+            logDiv.style.textAlign = 'center';
+            logDiv.style.margin = '20px 0';
+            logDiv.style.color = '#666';
+            logDiv.style.fontSize = '0.9em';
+            logDiv.innerHTML = `<em>--- Jumping to Expert Explanation (${formatTime(seconds)}) ---</em>`;
+            container.appendChild(logDiv);
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+
+            player.seekTo(seconds, true);
+            player.playVideo();
+        }
+
+        async function commitAnswer(stopId) {
+            const textArea = document.getElementById(`user-rationale-${stopId}`);
+            const userAnswer = textArea.value.trim();
+            // Find the button relative to the textarea (next sibling)
+            const btn = textArea.nextElementSibling;
+            
+            if (!userAnswer) {
+                alert("Please enter your reasoning before committing.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Grading...";
+
+            // Find current stop data (handle both ID formats)
+            const stopData = hotSeatStops.find(s => (s.sequence_id || s.id) === stopId);
+            const feedback = stopData.feedback || stopData;
+
+            try {
+                // Send to server for grading
+                const response = await fetch('/grade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_answer: userAnswer,
+                        expert_context: feedback.expert_insight || feedback.expert_thinking,
+                        novice_trap: feedback.novice_trap,
+                        phase_name: stopData.decision_point_name || stopData.stop_title || stopData.phase_name
+                    })
+                });
+
+                const result = await response.json();
+
+                // Show feedback container
+                const feedbackDiv = document.getElementById(`expert-feedback-${stopId}`);
+                feedbackDiv.style.display = 'block';
+                
+                // Find the dedicated slot for AI feedback
+                const aiSlot = feedbackDiv.querySelector('.ai-feedback-slot');
+                
+                // Inject AI Feedback (Professional Style)
+                aiSlot.innerHTML = `
+                    <div style="background: #e8f4fd; border: 1px solid #bbdefb; border-radius: 8px; overflow: hidden; margin-top: 24px;">
+                        <div style="background: #bbdefb; padding: 12px 20px; font-size: 0.85rem; font-weight: 700; color: #0d47a1; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;">
+                            <span style="margin-right: 8px; font-size: 1.1rem;">🤖</span> Personalized Feedback
+                        </div>
+                        <div style="padding: 24px; color: #1565c0; line-height: 1.7; font-size: 1rem;">
+                            ${result.feedback}
+                        </div>
+                    </div>
+                `;
+
+            } catch (e) {
+                alert("Error grading: " + e);
+            } finally {
+                btn.textContent = "Graded";
+            }
+        }
+
+        function resumeVideo() {
+            hotSeatActive = false; 
+            
+            const container = document.getElementById('hotseat-interaction');
+            const logDiv = document.createElement('div');
+            logDiv.style.textAlign = 'center';
+            logDiv.style.margin = '20px 0';
+            logDiv.style.color = '#666';
+            logDiv.style.fontSize = '0.9em';
+            logDiv.innerHTML = `<em>--- Video Resumed ---</em>`;
+            container.appendChild(logDiv);
+
+            container.scrollTop = container.scrollHeight;
+
+            // Advance slightly so we don't re-trigger immediately
+            player.seekTo(player.getCurrentTime() + 3, true);
+            player.playVideo();
         }
 
         // --- Quiz Rendering ---
@@ -714,6 +955,15 @@ graph TD
             div.className = `chat-message ${role}`;
             
             let formattedHtml = marked.parse(text);
+            // Handle ranges: [T=123, T=456]
+            formattedHtml = formattedHtml.replace(
+                /\[T=(\d+),\s*T=(\d+)\]/g, 
+                (match, start, end) => {
+                    return `<a class="timestamp-link" onclick="seekToTimestamp(${start})">▶ ${formatTime(start)} - ${formatTime(end)}</a>`;
+                }
+            );
+
+            // Handle single timestamps: [T=123]
             formattedHtml = formattedHtml.replace(
                 /\[T=(\d+)\]/g, 
                 (match, seconds) => {
