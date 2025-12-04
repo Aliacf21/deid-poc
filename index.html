@@ -499,6 +499,8 @@ graph TD
                     // Set explicit width/height to 100% for container scaling
                     svgElement.setAttribute('width', '100%');
                     svgElement.setAttribute('height', '100%');
+                    // Remove fixed inline styles that mermaid might add
+                    svgElement.style.maxWidth = ''; 
                     
                     // Destroy previous instance if exists
                     if (panZoomInstance) {
@@ -510,15 +512,36 @@ graph TD
                         controlIconsEnabled: false, // We built custom ones
                         fit: true,
                         center: true,
-                        minZoom: 0.5,
-                        maxZoom: 10
+                        minZoom: 0.1,
+                        maxZoom: 10,
+                        onUpdatedCTM: function() {
+                            // Optional: could handle updates here
+                        }
                     });
+
+                    // Force a resize/fit after a short delay to ensure container layout is final
+                    setTimeout(() => {
+                        panZoomInstance.resize();
+                        panZoomInstance.fit();
+                        panZoomInstance.center();
+                        // Zoom out slightly to provide margin
+                        panZoomInstance.zoomBy(0.9); 
+                    }, 100);
                 }
             } catch (e) {
                 container.innerHTML = 'Error rendering map: ' + e.message;
                 console.error(e);
             }
         }
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            if (panZoomInstance) {
+                panZoomInstance.resize();
+                panZoomInstance.fit();
+                panZoomInstance.center();
+            }
+        });
 
         function zoomMap(scale) {
             if (panZoomInstance) {
