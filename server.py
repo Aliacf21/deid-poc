@@ -6,6 +6,8 @@ import re
 import google.generativeai as genai
 from dotenv import load_dotenv
 from scripts.utils import parse_srt
+from scripts.process_video import process_video_url
+from scripts.generate_quiz import generate_quiz_with_gemini_optimized
 
 # Load env vars
 load_dotenv()
@@ -13,7 +15,7 @@ genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 PORT = 8000
 
-# Load transcript once at startup
+# Load transcript once at startup (Optional, mostly for chat)
 TRANSCRIPT_TEXT = parse_srt('data/requested_transcript.en.srt')
 
 class RAGRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -54,8 +56,88 @@ class RAGRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_chat()
         elif self.path == '/grade':
             self.handle_grading()
+        elif self.path == '/generate_quiz':
+            self.handle_generate_quiz()
+        elif self.path == '/save_quiz':
+            self.handle_save_quiz()
         else:
             self.send_error(404, "Endpoint not found")
+
+    def handle_generate_quiz(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        try:
+            data = json.loads(post_data)
+            youtube_url = data.get('youtube_url', '')
+
+            if not youtube_url:
+                self._send_response(400, {"error": "No youtube_url provided"})
+                return
+
+            print(f"Processing video: {youtube_url}")
+            
+            # 1. Download/Get Transcript
+            srt_path = process_video_url(youtube_url, output_dir="data")
+            if not srt_path:
+                 self._send_response(500, {"error": "Failed to download subtitles from YouTube URL."})
+                 return
+
+            # 2. Parse Transcript
+            transcript_text = parse_srt(srt_path)
+            if not transcript_text:
+                self._send_response(500, {"error": "Transcript file empty or unreadable."})
+                return
+            
+            # Update the global transcript text for Chat to work with new video
+            global TRANSCRIPT_TEXT
+            TRANSCRIPT_TEXT = transcript_text
+
+            # 3. Generate Quiz
+            print("Generating quiz with Gemini...")
+            quiz_json_str = generate_quiz_with_gemini_optimized(transcript_text)
+            
+            if not quiz_json_str:
+                self._send_response(500, {"error": "Gemini failed to generate quiz."})
+                return
+
+            # Attempt to parse to ensure it is valid JSON before sending
+            try:
+                # Clean up any markdown blocks if present
+                clean_json = quiz_json_str.strip()
+                if clean_json.startswith("```json"):
+                    clean_json = clean_json[7:]
+                if clean_json.endswith("```"):
+                    clean_json = clean_json[:-3]
+                
+                quiz_data = json.loads(clean_json)
+                self._send_response(200, quiz_data)
+            except json.JSONDecodeError:
+                 self._send_response(500, {"error": "AI generated invalid JSON", "raw_output": quiz_json_str})
+
+        except Exception as e:
+            print(f"Error generating quiz: {e}")
+            self._send_response(500, {"error": str(e)})
+
+    def handle_save_quiz(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        try:
+            quiz_data = json.loads(post_data)
+            
+            # Basic validation
+            if "questions" not in quiz_data:
+                self._send_response(400, {"error": "Invalid quiz data format"})
+                return
+
+            # Save to file
+            with open('data/quiz_data.json', 'w', encoding='utf-8') as f:
+                json.dump(quiz_data, f, indent=4)
+                
+            self._send_response(200, {"status": "success", "message": "Quiz saved to data/quiz_data.json"})
+
+        except Exception as e:
+            print(f"Error saving quiz: {e}")
+            self._send_response(500, {"error": str(e)})
 
     def handle_chat(self):
         content_length = int(self.headers['Content-Length'])
