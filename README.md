@@ -20,6 +20,11 @@ A Proof of Concept (POC) for an interactive, AI-enhanced medical education platf
 *   **📝 Board-Style Quiz**
     *   Auto-generated high-yield questions focusing on clinical nuance and "great mimickers."
 
+*   **✍️ Interactive Question Editor**
+    *   **Video Ingestion**: Paste a YouTube URL to automatically fetch subtitles and process the video.
+    *   **AI Generation**: One-click generation of quiz questions based on the video content using Gemini.
+    *   **Human-in-the-Loop**: Review, edit, add, or delete questions in a sleek, master-detail interface before publishing.
+
 ## 🛠️ Architecture
 
 *   **Backend**: Python (`http.server` extended) handling API requests for Chat and Grading.
@@ -33,6 +38,7 @@ A Proof of Concept (POC) for an interactive, AI-enhanced medical education platf
 ├── server.py              # Main application server (Port 8000)
 ├── public/                # Frontend static assets
 │   ├── index.html         # Main dashboard
+│   ├── editor.html        # Question Editor & Video Ingestion UI
 │   └── visual_map.html    # Standalone visual map
 ├── data/                  # Data persistence
 │   ├── quiz_data.json     # Generated quiz content
@@ -42,6 +48,7 @@ A Proof of Concept (POC) for an interactive, AI-enhanced medical education platf
 │   ├── generate_quiz.py
 │   ├── generate_hot_seat.py
 │   ├── generate_visual_map.py
+│   ├── process_video.py   # Video download & processing
 │   └── utils.py           # Shared utilities (SRT parsing)
 └── tests/                 # Comprehensive test suite
 ```
@@ -85,6 +92,14 @@ Open **http://localhost:8000** in your browser.
 
 ## 🔄 Content Generation Workflow
 
+### Option A: Using the UI (Recommended)
+1. Navigate to **http://localhost:8000/public/editor.html**
+2. Paste a YouTube URL (e.g., a Morning Report case).
+3. Click **Generate**. The system will download the transcript and use AI to create draft questions.
+4. Review and edit the questions in the sidebar.
+5. Click **Save Changes** to publish them to the main dashboard.
+
+### Option B: Command Line (Manual)
 To generate new interactive content from a raw transcript (`data/requested_transcript.en.srt`):
 
 ```bash
@@ -108,6 +123,7 @@ python -m unittest discover tests
 
 # Run a specific test module
 python -m unittest tests/test_e2e.py
+python -m unittest tests/test_quiz_editor.py # Tests for Question Editor features
 ```
 
 ## 📝 License
