@@ -3,35 +3,20 @@ import re
 import html
 import google.generativeai as genai
 from dotenv import load_dotenv
+import sys
+
+# Add parent directory to path to allow importing utils
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from scripts.utils import parse_srt
 
 # Load environment variables
 load_dotenv()
 
 # Configure API - Using available model
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-
-# --- 1. ROBUST SRT PARSER ---
-def parse_srt(file_path):
-    if not os.path.exists(file_path):
-        return None
-    
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    # Regex to extract timestamp and text block
-    pattern = re.compile(r'(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:(?!\n\n).)*)', re.DOTALL)
-    matches = pattern.findall(content)
-    
-    formatted_transcript = []
-    
-    for match in matches:
-        text_content = match[2].replace('\n', ' ').strip()
-        # We strip speaker tags if they are generic like ">>" to save tokens
-        clean_text = re.sub(r'^[A-Z\s]+:', '', text_content) 
-        if clean_text:
-            formatted_transcript.append(clean_text)
-            
-    return " ".join(formatted_transcript)
 
 # --- 2. THE "WISDOM TOPOLOGY" PROMPT ---
 def generate_visual_map(full_transcript_text):
@@ -196,10 +181,11 @@ def create_interactive_html(mermaid_code):
 
 # --- MAIN EXECUTION ---
 if __name__ == "__main__":
-    transcript_file = 'requested_transcript.en.srt' 
+    transcript_file = 'data/requested_transcript.en.srt' 
     
     print(f"Reading {transcript_file}...")
-    transcript_text = parse_srt(transcript_file)
+    # NOTE: Using include_timestamps=False for visual map logic
+    transcript_text = parse_srt(transcript_file, include_timestamps=False)
     
     if transcript_text:
         print("Analyzing transcript and mapping logic...")
@@ -209,12 +195,12 @@ if __name__ == "__main__":
             print("Generating Interactive UI...")
             full_html = create_interactive_html(mermaid_def)
             
-            with open('visual_map.html', 'w', encoding='utf-8') as f:
+            with open('public/visual_map.html', 'w', encoding='utf-8') as f:
                 f.write(full_html)
             
             # ALSO update index.html for the integrated view
             try:
-                with open('index.html', 'r') as f:
+                with open('public/index.html', 'r') as f:
                     index_html = f.read()
                 
                 # Look for the mermaid source block - now using the standard ID
@@ -226,17 +212,17 @@ if __name__ == "__main__":
                 
                 if pattern.search(index_html):
                     new_index_html = pattern.sub(r'\1\n' + safe_mermaid + r'\n\3', index_html)
-                    with open('index.html', 'w') as f:
+                    with open('public/index.html', 'w') as f:
                         f.write(new_index_html)
-                    print("Updated index.html with new Visual Map.")
+                    print("Updated public/index.html with new Visual Map.")
                 else:
                     # Fallback check for other IDs just in case
-                    print("Warning: Could not find <pre id='mermaid-source'> in index.html.")
+                    print("Warning: Could not find <pre id='mermaid-source'> in public/index.html.")
 
             except Exception as e:
-                print(f"Could not update index.html: {e}")
+                print(f"Could not update public/index.html: {e}")
                 
-            print("Success! Open 'visual_map.html' for standalone view or 'index.html' for dashboard.")
+            print("Success! Open 'public/visual_map.html' for standalone view or 'public/index.html' for dashboard.")
         else:
             print("Failed to generate Mermaid definition.")
     else:

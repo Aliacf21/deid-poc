@@ -3,6 +3,14 @@ import re
 import json
 import google.generativeai as genai
 from dotenv import load_dotenv
+import sys
+
+# Add parent directory to path to allow importing utils if run from scripts/
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from scripts.utils import parse_srt
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,35 +21,6 @@ if not api_key:
     print("Warning: GOOGLE_API_KEY not found in environment variables.")
 else:
     genai.configure(api_key=api_key)
-
-def parse_srt(file_path):
-    """
-    Parses .srt file into a text string with embedded timestamps [T=123].
-    """
-    if not os.path.exists(file_path):
-        return "Error: Transcript file not found."
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    # Regex to find timestamp blocks
-    pattern = re.compile(r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:(?!\n\n).)*)', re.DOTALL)
-    matches = pattern.findall(content)
-
-    formatted_transcript = ""
-    
-    for match in matches:
-        start_time_str = match[1]
-        text_content = match[3].replace('\n', ' ').strip()
-        
-        # Convert HH:MM:SS,mmm to total seconds
-        h, m, s = start_time_str.replace(',', '.').split(':')
-        total_seconds = int(h) * 3600 + int(m) * 60 + float(s)
-        
-        # Append to a single massive string
-        formatted_transcript += f"[T={int(total_seconds)}] {text_content} "
-    
-    return formatted_transcript
 
 def generate_quiz_with_gemini_optimized(full_transcript_text):
     # Using 'gemini-2.5-pro' as it is available and supports high reasoning.
@@ -128,7 +107,7 @@ Return **ONLY** valid JSON.
 
 # --- Execution ---
 if __name__ == "__main__":
-    input_file = 'requested_transcript.en.srt'
+    input_file = 'data/requested_transcript.en.srt'
     print(f"Processing {input_file}...")
     
     transcript_text = parse_srt(input_file)
@@ -141,7 +120,7 @@ if __name__ == "__main__":
             print("Gemini Generation Complete.")
             
             # Save to file
-            output_file = 'quiz_data.json'
+            output_file = 'data/quiz_data.json'
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(json_output)
             print(f"Quiz saved to {output_file}")

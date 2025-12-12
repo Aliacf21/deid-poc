@@ -5,6 +5,7 @@ import os
 import re
 import google.generativeai as genai
 from dotenv import load_dotenv
+from scripts.utils import parse_srt
 
 # Load env vars
 load_dotenv()
@@ -12,31 +13,42 @@ genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 PORT = 8000
 
-def parse_srt(file_path):
-    if not os.path.exists(file_path):
-        return ""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    # Regex to keep timestamps for context if needed, or just raw text.
-    # For RAG, keeping [T=123] markers in the text helps the LLM cite sources.
-    pattern = re.compile(r'(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:(?!\n\n).)*)', re.DOTALL)
-    matches = pattern.findall(content)
-    formatted_transcript = ""
-    for match in matches:
-        start_time_str = match[1]
-        text_content = match[3].replace('\n', ' ').strip()
-        
-        # Convert HH:MM:SS,mmm to total seconds for reference
-        h, m, s = start_time_str.replace(',', '.').split(':')
-        total_seconds = int(int(h) * 3600 + int(m) * 60 + float(s))
-        
-        formatted_transcript += f"[T={total_seconds}] {text_content} "
-    return formatted_transcript
-
 # Load transcript once at startup
-TRANSCRIPT_TEXT = parse_srt('requested_transcript.en.srt')
+TRANSCRIPT_TEXT = parse_srt('data/requested_transcript.en.srt')
 
 class RAGRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def _rewrite_path(self):
+        # Normalize path
+        path = self.path.split('?', 1)[0]
+        path = path.split('#', 1)[0]
+
+        # Case 1: Data files (allow direct access to /data/)
+        if path.startswith('/data/'):
+            return # Serve directly from ./data/
+            
+        # Case 2: Legacy data file access (redirect to /data/)
+        if path in ['/quiz_data.json', '/simulation_data.json']:
+            self.path = '/data' + self.path
+            return
+
+        # Case 3: Root or explicit index
+        if path == '/' or path == '/index.html':
+            self.path = '/public/index.html'
+            return
+
+        # Case 4: Everything else -> Serve from /public/
+        # (unless it already starts with /public/)
+        if not path.startswith('/public/'):
+            self.path = '/public' + self.path
+
+    def do_GET(self):
+        self._rewrite_path()
+        return super().do_GET()
+
+    def do_HEAD(self):
+        self._rewrite_path()
+        return super().do_HEAD()
+
     def do_POST(self):
         if self.path == '/chat':
             self.handle_chat()

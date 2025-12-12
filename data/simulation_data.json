@@ -1,0 +1,38 @@
+{
+  "case_summary": "A 46-year-old male with a recent history of a repaired right atrial pseudoaneurysm and eosinophilic pericarditis presents with recurrent chest pain, headache, and new neurologic deficits after international travel. Imaging reveals a widely disseminated process with bilateral pulmonary nodules with halo signs, multiple enhancing hemorrhagic brain lesions, pericardial masses, and sclerotic bone lesions. Despite the aggressive, multi-system presentation suggestive of infection, an exhaustive workup including cultures, serologies, and plasma-based next-generation sequencing is negative. Ultimately, a biopsy of a pericardial lymph node reveals metastatic angiosarcoma, a rare malignancy known to mimic infectious and inflammatory conditions.",
+  "stops": [
+    {
+      "expert_insight": "Integrating a patient's entire clinical history, including seemingly resolved issues like a pseudoaneurysm with eosinophilia, is crucial when evaluating new multi-system complaints to form a unified differential.",
+      "expert_quote_verbatim": "So this is a 46-year-old with an extensive travel history and a prior unclear etiology pseudoaneurysm which had some inflammatory features, for which it sounds like there was an open infectious versus inflammatory differential, who's now re-presenting with progression that we could either link or split but seems likely related to the initial pathology.",
+      "novice_trap": "Anchoring on the recent travel to Israel and neurologic symptoms, leading to a narrow focus on common travel-related infections while downplaying the significance of the unusual cardiac history.",
+      "question_for_trainee": "Given the history of a right atrial pseudoaneurysm with eosinophilic pericarditis and new neurologic symptoms after travel, what is your initial differential diagnosis? How do you connect these seemingly disparate findings?",
+      "resume_timestamp_seconds": 327,
+      "sequence_id": 1,
+      "stop_timestamp_seconds": 186,
+      "suggested_visual": "Timeline of patient's symptoms, cardiac surgery, and recent travel.",
+      "title": "The Cardiac Conundrum"
+    },
+    {
+      "expert_insight": "Recognizing that a widely disseminated process involving vascular structures (heart, hemorrhagic brain lesions, halo signs) in a seemingly immunocompetent host requires a broad differential including atypical infections, vasculitis, and malignancy mimickers.",
+      "expert_quote_verbatim": "I think much more plausible seems to be something like an atypical process, which I would include mycobacterial infection. Other less common bacterial processes would be like Burkholderia melioidosis type of presentation with his travel to Southeast Asia. Moving on from that, fungal pathogens.",
+      "novice_trap": "Jumping to a diagnosis of either metastatic cancer or septic emboli without considering the broad overlap between them, including atypical infections (fungal, Nocardia) and inflammatory syndromes that can mimic malignancy.",
+      "question_for_trainee": "Imaging reveals widely disseminated disease in the lungs, brain, pericardium, and bone. How does this pattern—particularly pulmonary nodules with halo signs and hemorrhagic brain lesions—force you to refine your differential diagnosis?",
+      "resume_timestamp_seconds": 327,
+      "sequence_id": 2,
+      "stop_timestamp_seconds": 248,
+      "suggested_visual": "Composite image: CT Chest with halo sign, MRI Brain with enhancing hemorrhagic lesions, and CT showing pericardial masses.",
+      "title": "Disseminated Disease"
+    },
+    {
+      "expert_insight": "When an extensive, high-quality infectious workup is negative in the face of severe disease, the probability of non-infectious mimickers, particularly malignancy, rises dramatically, making tissue biopsy the highest yield diagnostic step.",
+      "expert_quote_verbatim": "Thinking about this case, one of the things that I wanted to learn from this and think more about is what infections are mimickers of malignancy, and then what malignancy can mimic infection.",
+      "novice_trap": "Persisting with the search for an obscure infection or attributing the negative results to sampling error, rather than fundamentally questioning the infectious hypothesis and pivoting to non-infectious causes.",
+      "question_for_trainee": "An exhaustive infectious workup, including advanced molecular testing, is entirely negative. How does this profound lack of evidence for infection change your diagnostic approach? What is the most important next step?",
+      "resume_timestamp_seconds": 908,
+      "sequence_id": 3,
+      "stop_timestamp_seconds": 894,
+      "suggested_visual": "Table summarizing the extensive negative workup (BAL, CSF, Serologies, Karius NGS).",
+      "title": "The Negative Workup"
+    }
+  ]
+}

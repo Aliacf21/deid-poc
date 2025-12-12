@@ -362,7 +362,6 @@
             <!-- HOT SEAT TAB -->
             <div id="hotseat" class="tab-content">
                 <div id="hotseat-status" style="padding: 40px 20px; text-align: center; color: #546e7a;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">👨‍⚕️</div>
                     <h3 style="margin: 0 0 10px 0; color: #37474f;">Clinical Simulation Active</h3>
                     <p style="font-size: 1.1rem; margin: 0;">Follow the case presentation. The simulation will pause at critical decision points for you to weigh in.</p>
                 </div>
@@ -376,50 +375,49 @@
                 <!-- Source for Visual Map -->
                 <pre id="mermaid-source" class="mermaid-source-block">
 graph TD
-    classDef Phase1 fill:#e0f7fa,stroke:#00796b,stroke-width:2px;
-    classDef Phase2 fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
-    classDef Phase3 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
-
     subgraph Phase_1 [The Clinical Puzzle]
-        Patient(&quot;46M with Hx of&lt;br&gt;Atrial Pseudoaneurysm Repair&quot;)
-        Presentation(&quot;New Onset:&lt;br&gt;Chest Pain, Headache,&lt;br&gt;Word-Finding Difficulty&quot;)
-        Imaging(&quot;Multi-System Lesions:&lt;br&gt;Lungs (Halo Sign), Brain,&lt;br&gt;Pericardium, Bone&quot;)
-        Lab(&quot;Key Lab Finding:&lt;br&gt;Peripheral Eosinophilia&quot;)
-        Dilemma(&quot;The Dilemma:&lt;br&gt;Widespread disease in a&lt;br&gt;previously healthy world traveler&quot;)
+        P1(&quot;46M with history of&lt;br&gt;Atrial Pseudoaneurysm Repair&quot;)
+        P2(&quot;&lt;b&gt;Current Presentation:&lt;/b&gt;&lt;br&gt;Recurrent Chest Pain, Headache, Nausea&quot;)
+        P3(&quot;&lt;b&gt;Key Imaging Findings:&lt;/b&gt;&lt;br&gt;- New Pulmonary Nodules (Halo Sign)&lt;br&gt;- Pericardial &amp; Soft Tissue Masses&lt;br&gt;- Multiple Enhancing Brain Lesions&lt;br&gt;- Sclerotic Bone Foci&quot;)
+        P4(&quot;&lt;b&gt;The Puzzle:&lt;/b&gt;&lt;br&gt;Rapid, multi-system disease&lt;br&gt;in a previously healthy man&quot;)
+
+        P1 --&gt; P2 --&gt; P3 --&gt; P4
     end
 
     subgraph Phase_2 [The Differential Debate]
-        CentralQuestion(&quot;Central Question:&lt;br&gt;Infection vs. Malignancy?&quot;)
-        InfectiousDDx(&quot;Hypothesis: Atypical Infection&lt;br&gt;• Mycobacterial (TB/NTM)&lt;br&gt;• Endemic Fungi&lt;br&gt;• Nocardia / Melioidosis&lt;br&gt;• Brucellosis&quot;)
-        MalignancyDDx(&quot;Hypothesis: Malignancy / Inflammatory&lt;br&gt;• Lymphoma&lt;br&gt;• Sarcoma&lt;br&gt;• Histiocytosis&quot;)
-        Workup(&quot;Extensive Infectious Workup:&lt;br&gt;BAL, CSF, Blood Cultures,&lt;br&gt;Serologies --&gt; All Negative&quot;)
-        TurningPoint(&quot;The Turning Point:&lt;br&gt;Biopsy of Pericardial Lymph Node&quot;)
+        D1(&quot;&lt;b&gt;Central Question:&lt;/b&gt;&lt;br&gt;Infection vs. Malignancy?&quot;)
+        D2(&quot;&lt;b&gt;Hypothesis 1: Infection&lt;/b&gt;&lt;br&gt;TB/NTM, Fungal (Histo, Blasto),&lt;br&gt;Nocardia, Melioidosis, Brucellosis&quot;)
+        D3(&quot;&lt;b&gt;Hypothesis 2: Malignancy/Inflammatory&lt;/b&gt;&lt;br&gt;Lymphoma, Sarcoma, Histiocytosis,&lt;br&gt;IgG4-related disease&quot;)
+        D4(&quot;&lt;b&gt;Diagnostic Workup&lt;/b&gt;&lt;br&gt;Extensive negative results:&lt;br&gt;- BAL &amp; CSF cultures&lt;br&gt;- Blood cultures &amp; serologies&lt;br&gt;- Karius NGS test&quot;)
+        D5(&quot;&lt;b&gt;The Turning Point&lt;/b&gt;&lt;br&gt;Negative infectious workup compels&lt;br&gt;a tissue diagnosis&quot;)
+        D6(&quot;&lt;b&gt;Action:&lt;/b&gt;&lt;br&gt;Biopsy of Pericardial Lymph Node&quot;)
+        
+        D1 --&gt; D2
+        D1 --&gt; D3
+        D2 --&gt; D4
+        D4 --&gt; D5
+        D3 --&gt; D5
+        D5 --&gt; D6
     end
 
     subgraph Phase_3 [Resolution &amp; Wisdom]
-        Diagnosis(&quot;Final Diagnosis:&lt;br&gt;Cardiac Angiosarcoma&quot;)
-        TeachingPoint1(&quot;Primary Teaching Point:&lt;br&gt;Angiosarcoma is a great mimicker&lt;br&gt;of infectious pericarditis &amp; sepsis&quot;)
-        TeachingPoint2(&quot;Clinical Pearl:&lt;br&gt;Always consider malignancy when&lt;br&gt;an &#x27;infection&#x27; fails to respond&lt;br&gt;or has atypical features&quot;)
+        R1(&quot;&lt;b&gt;Final Diagnosis:&lt;/b&gt;&lt;br&gt;Angiosarcoma&quot;)
+        R2(&quot;&lt;b&gt;Key Teaching Point:&lt;/b&gt;&lt;br&gt;Malignancy can be a &#x27;great mimicker&#x27;&quot;)
+        R3(&quot;&lt;b&gt;Clinical Pearl:&lt;/b&gt;&lt;br&gt;Angiosarcoma can present as pericarditis&lt;br&gt;with findings mimicking&lt;br&gt;disseminated infection.&quot;)
+
+        R1 --&gt; R2 --&gt; R3
     end
 
-    %% Flow
-    Patient --&gt; Presentation --&gt; Imaging &amp; Lab
-    Imaging --&gt; Dilemma
-    Lab --&gt; Dilemma
-    Dilemma --&gt; CentralQuestion
-    CentralQuestion --&gt; InfectiousDDx
-    CentralQuestion --&gt; MalignancyDDx
-    InfectiousDDx --&gt; Workup
-    MalignancyDDx --&gt; Workup
-    Workup --&gt; TurningPoint
-    TurningPoint --&gt; Diagnosis
-    Diagnosis --&gt; TeachingPoint1
-    TeachingPoint1 --&gt; TeachingPoint2
+    P4 --&gt; D1
+    D6 --&gt; R1
 
-    %% Styling
-    class Patient,Presentation,Imaging,Lab,Dilemma Phase1;
-    class CentralQuestion,InfectiousDDx,MalignancyDDx,Workup,TurningPoint Phase2;
-    class Diagnosis,TeachingPoint1,TeachingPoint2 Phase3;
+    classDef phase1 fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
+    classDef phase2 fill:#fff3e0,stroke:#ffa726,stroke-width:2px
+    classDef phase3 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
+
+    class P1,P2,P3,P4 phase1
+    class D1,D2,D3,D4,D5,D6 phase2
+    class R1,R2,R3 phase3
 </pre>
                 
                 <div id="mermaid-wrapper">
